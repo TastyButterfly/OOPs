@@ -1,14 +1,14 @@
 import java.time.LocalDateTime;
 
 public class Cancellation{
-    String cancelID;
-    Order order;
-    Product product;
-    LocalDateTime date;
-    int qty;
-    static int latestCancelID;
-    public Cancellation(String cancelID, Product product, int qty, Order order){
-        this.cancelID=cancelID;
+    private String cancelID;
+    private Order order;
+    private Product product;
+    private LocalDateTime date;
+    private int qty;
+    private static int count;
+    public Cancellation(Product product, int qty, Order order){
+        cancelID=String.format("%c%d",'C',++count);
         this.product=product;
         this.qty=qty;
         this.order=order;
@@ -16,7 +16,32 @@ public class Cancellation{
         product.qty+=qty;
     }
     public Cancellation(Order order){
-        cancelID=++latestCancelID;
+        cancelID=String.format("%c%d",'C',++count);
+        this.order=order;
+        date=LocalDateTime.now();
+    }
+    public Cancellation(){
+        cancelID=String.format("%c%d",'C',++count);
+        date=LocalDateTime.now();
+    }
+    public void setOrder(Order order){
+        try{
+            this.order=order;
+        }catch (Exception e){
+            System.out.println("Error setting order.");
+        }
+    }
+    public void setQty(int qty){
+        if(qty<=0){
+            System.out.println("Quantity must be 1 or more!");
+        }
+        else{
+            if(product!=null){
+                product.qty-=this.qty;
+                product.qty+=qty;
+            }
+            this.qty=qty;
+        }
     }
     public void changeDate(LocalDateTime date){
         try{
@@ -29,14 +54,28 @@ public class Cancellation{
         if(qty<=0){
             System.out.println("Quantity must be 1 or more!");
         }
-        try{
+        else{try{
+            if(this.product!=null){
+                product.qty-=this.qty;
+            }
             this.product=product;
-            product.qty-=this.qty;
             product.qty+=qty;
             this.qty=qty;
-        }catch (Exception e){
-            System.out.println("Error referencing Product object");
+            }catch (Exception e){
+                if(this.product!=null){
+                    product.qty+=this.qty;
+                }
+                System.out.println("Error referencing Product object");
+            }
         }
     }
-
+    public static int addCancellation(){
+        return 1;
+    }
+    public LocalDateTime getDate(){
+        return date;
+    }
+    public int getCount(){
+        return count;
+    }
 }
