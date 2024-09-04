@@ -62,7 +62,7 @@ public class Cancellation{
             product.qty+=qty;
             this.qty=qty;
             }catch (Exception e){
-                if(this.product!=null){
+                if(this.product!=null){ 
                     product.qty+=this.qty;
                 }
                 System.out.println("Error referencing Product object");
