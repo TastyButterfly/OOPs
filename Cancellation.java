@@ -1,10 +1,8 @@
-import java.time.LocalDateTime;
-
 public class Cancellation{
     private String cancelID;
     private Order order;
     private Product product;
-    private LocalDateTime date;
+    public Date date;
     private int qty;
     private static int count;
     public Cancellation(Product product, int qty, Order order){
@@ -12,17 +10,17 @@ public class Cancellation{
         this.product=product;
         this.qty=qty;
         this.order=order;
-        date=LocalDateTime.now();
+        date=new Date();
         product.qty+=qty;
     }
     public Cancellation(Order order){
         cancelID=String.format("%c%d",'C',++count);
         this.order=order;
-        date=LocalDateTime.now();
+        date=new Date();
     }
     public Cancellation(){
         cancelID=String.format("%c%d",'C',++count);
-        date=LocalDateTime.now();
+        date=new Date();
     }
     public void setOrder(Order order){
         try{
@@ -41,13 +39,6 @@ public class Cancellation{
                 product.qty+=qty;
             }
             this.qty=qty;
-        }
-    }
-    public void changeDate(LocalDateTime date){
-        try{
-            this.date=date;
-        }catch (Exception e){
-            System.out.println("Error changing date.");
         }
     }
     public void setProdandQty(Product product, int qty){
@@ -72,9 +63,7 @@ public class Cancellation{
     public static int addCancellation(){
         return 1;
     }
-    public LocalDateTime getDate(){
-        return date;
-    }
+   
     public int getCount(){
         return count;
     }
