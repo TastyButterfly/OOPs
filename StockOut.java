@@ -1,34 +1,42 @@
-public class Cancellation{
-    private String cancelID;
-    private Order order;
+
+public class StockOut {
+    private String sOutID;
     private Product product;
-    private Date date;
     private int qty;
+    private Date date;
+    private Order order;
     private static int count=0;
-    public Cancellation(Product product, int qty, Order order){
-        cancelID=String.format("%s%03d","CA",++count);
+    public StockOut(){
+        sOutID=String.format("%s%04d","SO",++count);
+        date=new Date();
+    }
+    public StockOut(Product product, int qty){
+        sOutID=String.format("%s%04d","SO",++count);
         this.product=product;
         this.qty=qty;
+        date=new Date();
+        product.qty-=qty;
+    }
+    public StockOut(Order order){
+        sOutID=String.format("%s%04d","SO",++count);
         this.order=order;
         date=new Date();
-        product.qty+=qty;
     }
-    public Cancellation(Order order){
-        cancelID=String.format("%s%03d","CA",++count);
+    public StockOut(Order order, Product product, int qty){
+        sOutID=String.format("%s%04d","SO",++count);
         this.order=order;
+        this.product=product;
+        this.qty=qty;
         date=new Date();
+        product.qty-=qty;
     }
-    public Cancellation(){
-        cancelID=String.format("%s%03d","CA",++count);
-        date=new Date();
-    }
-    //Constructor
-    public void setCancelID(String cancelID){
-        if(cancelID.matches("CA\\d+")&& cancelID.length()==5 && Integer.parseInt(cancelID.replaceAll("[^0-9]", ""))!=count){//REGEX FOR CANCELID AND TO ENSURE IT IS NOT A DUPLICATE OF LATEST ID
-            if(Integer.parseInt(cancelID.replaceAll("[^0-9]", ""))>count){ //ENSURE NO DUPLICATE IDs
-                count=Integer.parseInt(cancelID.replaceAll("[^0-9]", ""));
+    //Constructors
+    public void setSOID(String sOutID){
+        if(sOutID.matches("SO\\d+") && sOutID.length()==6 && Integer.parseInt(sOutID.replaceAll("[^0-9]", ""))!=count){//REGEX FOR SOID AND TO ENSURE IT IS NOT A DUPLICATE OF LATEST ID
+            if(Integer.parseInt(sOutID.replaceAll("[^0-9]", ""))>count){ //ENSURE NO DUPLICATE IDs
+                count=Integer.parseInt(sOutID.replaceAll("[^0-9]", ""));
             }
-            this.cancelID=cancelID;
+            this.sOutID=sOutID;
         }
         else{
             System.out.println("Invalid Cancellation ID");
@@ -48,8 +56,8 @@ public class Cancellation{
         }
         else{
             if(product!=null){
-                product.qty-=this.qty;
-                product.qty+=qty;
+                product.qty+=this.qty;
+                product.qty-=qty;
             }
             this.qty=qty;
         }
@@ -60,24 +68,20 @@ public class Cancellation{
         }
         else{try{
             if(this.product!=null){
-                product.qty-=this.qty;
+                product.qty+=this.qty;
             }
             this.product=product;
-            product.qty+=qty;
+            product.qty-=qty;
             this.qty=qty;
             }catch (Exception e){
                 if(this.product!=null){ 
-                    product.qty+=this.qty;
+                    product.qty-=this.qty;
                 }
                 System.out.println("Error referencing Product object");
             }
         }
     }
     //Setters
-    public static int addCancellation(){
-        return 1;
-    }
-    //Functional Modules
     public Product getProductObj(){
         return product;
     }   
@@ -90,11 +94,12 @@ public class Cancellation{
     public int getCount(){
         return count;
     }
-    public String getCancelID(){
-        return cancelID;
+    public String getSOID(){
+        return sOutID;
     }
     public Date getDateObj(){
         return date;  
     }
     //Getters
 }
+
