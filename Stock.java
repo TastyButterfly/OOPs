@@ -7,14 +7,18 @@ public Stock(){
 System.out.println("This is a superclass. DO NOT create an object of this class!");
 }
 
-    public void setQty(int qty){
+    public void setQty(boolean stockIn, int qty){
         if(qty<=0){
             System.out.println("Quantity must be 1 or more!");
         }
         else{
-            if(product!=null){
-                product.qty-=this.qty;
+            if(product!=null && stockIn){
                 product.qty+=qty;
+                product.qty-=this.qty;
+            }
+            else if(product!=null && !(stockIn)){//for use in stock outs
+                product.qty-=qty;
+                product.qty+=this.qty;
             }
             this.qty=qty;
         }
