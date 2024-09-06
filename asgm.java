@@ -1,10 +1,14 @@
 public class asgm {
     public static void main(String[] args) {
-        Cancellation[] cancel=new Cancellation[99];
+        Stock[] stock=new Stock[1000];
         Product prod=new Product();
         Product prod2=new Product();
-        cancel[0]=new Cancellation(prod,5);
-        cancel[0].setQty(10);
-        System.out.println(prod.qty);
+        Order order=new Order();
+        stock[0]=new Cancellation();
+        ((Cancellation) stock[0]).setProdandQty(prod,10);
+        ((Cancellation) stock[0]).setQty(50);
+        ((Cancellation) stock[0]).setProdandQty(prod2,10);
+        ((Cancellation) stock[0]).setOrder(order);
+        System.out.println(((Cancellation)stock[0]).getQty());
     }
 }
