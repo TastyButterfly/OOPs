@@ -1,4 +1,4 @@
-public class Stock{
+public abstract class Stock{
     protected Product product;
     protected CDate date;
     protected int qty;
@@ -30,7 +30,7 @@ public class Stock{
         else{try{
             if(stockIn){
                 if(this.product!=null){
-                    product.qty-=this.qty;
+                    this.product.qty-=this.qty;
                 }
                 this.product=product;
                 product.qty+=qty;
@@ -38,7 +38,7 @@ public class Stock{
             }
             else if(!(stockIn)){//for use in stock outs
                 if(this.product!=null){
-                    product.qty+=this.qty;
+                    this.product.qty+=qty;
                 }
                 this.product=product;
                 product.qty-=qty;
