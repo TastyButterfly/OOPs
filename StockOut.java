@@ -1,34 +1,23 @@
 
-public class StockOut {
+public class StockOut extends Stock{
     private String sOutID;
-    private Product product;
-    private int qty;
-    private Date date;
     private Order order;
     private static int count=0;
     public StockOut(){
         sOutID=String.format("%s%04d","SO",++count);
-        date=new Date();
     }
     public StockOut(Product product, int qty){
         sOutID=String.format("%s%04d","SO",++count);
-        this.product=product;
-        this.qty=qty;
-        date=new Date();
-        product.qty-=qty;
+        setProdandQty(product, qty);
     }
     public StockOut(Order order){
         sOutID=String.format("%s%04d","SO",++count);
-        this.order=order;
-        date=new Date();
+        setOrder(order);
     }
     public StockOut(Order order, Product product, int qty){
         sOutID=String.format("%s%04d","SO",++count);
-        this.order=order;
-        this.product=product;
-        this.qty=qty;
-        date=new Date();
-        product.qty-=qty;
+        setProdandQty(product, qty);
+        setOrder(order);
     }
     //Constructors
     public void setSOID(String sOutID){
@@ -51,54 +40,20 @@ public class StockOut {
         }
     }
     public void setQty(int qty){
-        if(qty<=0){
-            System.out.println("Quantity must be 1 or more!");
-        }
-        else{
-            if(product!=null){
-                product.qty+=this.qty;
-                product.qty-=qty;
-            }
-            this.qty=qty;
-        }
+       super.setQty(false, qty);
     }
     public void setProdandQty(Product product, int qty){
-        if(qty<=0){
-            System.out.println("Quantity must be 1 or more!");
-        }
-        else{try{
-            if(this.product!=null){
-                product.qty+=this.qty;
-            }
-            this.product=product;
-            product.qty-=qty;
-            this.qty=qty;
-            }catch (Exception e){
-                if(this.product!=null){ 
-                    product.qty-=this.qty;
-                }
-                System.out.println("Error referencing Product object");
-            }
-        }
+        super.setProdandQty(false,product,qty);
     }
     //Setters
-    public Product getProductObj(){
-        return product;
-    }   
     public Order getOrderObj(){
         return order;
     }
-    public int getQty(){
-        return qty;
-    }  
     public int getCount(){
         return count;
     }
     public String getSOID(){
         return sOutID;
-    }
-    public Date getDateObj(){
-        return date;  
     }
     //Getters
 }
