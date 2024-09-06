@@ -1,9 +1,9 @@
 import java.time.LocalDateTime;
 
-public class Date {
+public class CDate {
     private LocalDateTime date;
-
-    public Date(){
+    //Attribute
+    public CDate(){
         date=LocalDateTime.now();
     }
     //Constructor
@@ -18,13 +18,13 @@ public class Date {
     }
     //Getters
     public String getDateTime(){
-        return String.format("%d-%d-%d %d:%d:%d",date.getDayOfMonth(),date.getMonthValue(),date.getYear(),date.getHour(),date.getMinute(),date.getSecond());
+        return String.format("%02d-%02d-%04d %02d:%02d:%02d",date.getDayOfMonth(),date.getMonthValue(),date.getYear(),date.getHour(),date.getMinute(),date.getSecond());
     }
     public String getDate(){
-        return String.format("%d-%d-%d",date.getDayOfMonth(),date.getMonthValue(),date.getYear());
+        return String.format("%02d-%02d-%04d",date.getDayOfMonth(),date.getMonthValue(),date.getYear());
     }
     public String getTime(){
-        return String.format("%d:%d:%d",date.getHour(),date.getMinute(),date.getSecond());
+        return String.format("%02d:%02d:%02d",date.getHour(),date.getMinute(),date.getSecond());
     }
     public String getDMY(){
         return String.format("%d %s %d",date.getDayOfMonth(),date.getMonth(),date.getYear());
@@ -36,7 +36,7 @@ public class Date {
         return String.format("%d %s",date.getDayOfMonth(),date.getMonth());
     }
     public String getDMValue(){
-        return String.format("%d-%d",date.getDayOfMonth(),date.getMonthValue());
+        return String.format("%d/%d",date.getDayOfMonth(),date.getMonthValue());
     }
     public int getDay(){
         return date.getDayOfMonth();
