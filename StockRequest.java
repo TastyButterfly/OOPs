@@ -1,19 +1,13 @@
-public class StockRequest {
+public class StockRequest extends Stock{
     private String SRID;
-    private Product product;
-    private int qty;
-    private Date date;
     private static int count=0;
 
     public StockRequest(){
         SRID=String.format("%s%03d","SR",++count);
-        date=new Date();
     }
     public StockRequest(Product product, int qty){
         SRID=String.format("%s%03d","SR",++count);
-        this.product=product;
-        this.qty=qty;
-        date=new Date();
+        setProdandQty(product, qty);
     }
     //Constructors
     public void setSRID(String SRID){
@@ -49,20 +43,11 @@ public class StockRequest {
         }
     }
     //Setters
-    public Product getProductObj(){
-        return product;
-    }   
-    public int getQty(){
-        return qty;
-    }  
     public int getCount(){
         return count;
     }
     public String getSRID(){
         return SRID;
-    }
-    public Date getDateObj(){
-        return date;  
     }
     //Getters
 }
