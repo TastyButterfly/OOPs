@@ -16,22 +16,22 @@ public abstract class Stock{
             System.out.println("Product not set! Changes cannot be made.");
             return false;
         }
-        else if (stockIn && this.qty-qty>product.qty){//check if there is enough stock
+        else if (stockIn && this.qty-qty>product.getQuantity()){//check if there is enough stock
             System.out.println("Not enough stock if this record is changed to a quantity of lower value!");
             return false;
         }
-        else if(!(stockIn) && qty-this.qty>product.qty){
+        else if(!(stockIn) && qty-this.qty>product.getQuantity()){
             System.out.println("Not enough stock to stock out!");
             return false;
         }
         else{
             if(product!=null && stockIn){
-                product.qty+=qty;
-                product.qty-=this.qty;
+                product.setQuantity(product.getQuantity()+qty);
+                product.setQuantity(product.getQuantity()-this.qty);
             }
             else if(product!=null && !(stockIn)){//for use in stock outs
-                product.qty-=qty;
-                product.qty+=this.qty;
+                product.setQuantity(product.getQuantity()-qty);
+                product.setQuantity(product.getQuantity()+this.qty);
             }
             this.qty=qty;
             return true;
@@ -42,38 +42,42 @@ public abstract class Stock{
             System.out.println("Quantity must be more than 0!");
             return false;
         }
-        else if (stockIn && this.qty>this.product.qty){
-            System.out.println("Not enough stock to undo the stock in of the old product!\nConsider making a new stock in record for the old product first.");
+        else if(product==null){//product must be set
+            System.out.println("Product not set! Changes cannot be made.");
             return false;
         }
-        else if(!(stockIn) && qty>product.qty){
+        else if (this.product!=null && stockIn && this.qty>this.product.getQuantity()){
+                System.out.println("Not enough stock to undo the stock in of the old product!\nConsider making a new stock in record for the old product first.");
+                return false;
+        }
+        else if(this.product!=null && !(stockIn) && qty>product.getQuantity()){
             System.out.println("Not enough stock to stock out!");
             return false;
         }
         else{try{
             if(stockIn){
                 if(this.product!=null){
-                    this.product.qty-=this.qty;
+                    this.product.setQuantity(this.product.getQuantity()-this.qty);
                 }
                 this.product=product;
-                product.qty+=qty;
+                product.setQuantity(product.getQuantity()+qty);
                 this.qty=qty;
             }
             else if(!(stockIn)){//for use in stock outs
                 if(this.product!=null){
-                    this.product.qty+=qty;
+                    this.product.setQuantity(this.product.getQuantity()+qty);
                 }
                 this.product=product;
-                product.qty-=qty;
+                product.setQuantity(product.getQuantity()-qty);
                 this.qty=qty;
             }
             return true;
             }catch (Exception e){
                 if(this.product!=null && stockIn){ 
-                    product.qty+=this.qty;
+                    product.setQuantity(product.getQuantity()+this.qty);
                 }
                 else if(this.product!=null && !(stockIn)){//reverse changes in case of exception thrown
-                    product.qty-=this.qty;
+                    product.setQuantity(product.getQuantity()-this.qty);
                 }
                 System.out.println("Error referencing Product object");
                 return false;
