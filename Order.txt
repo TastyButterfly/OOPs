@@ -1,0 +1,150 @@
+Order ID: ORD0001
+Date Ordered: Thu Sep 05 22:56:02 MYT 2024
+Products and Quantities:
+Product: Shirt, Quantity: 2
+Product: Pants, Quantity: 1
+Grand Total: 95.4
+------------------------------------------------
+Order ID: ORD0002
+Date Ordered: Thu Sep 05 22:58:15 MYT 2024
+Products and Quantities:
+Product: Shirt, Quantity: 2
+Product: Pants, Quantity: 1
+Grand Total: 95.40
+------------------------------------------------
+Order ID: ORD0003
+Date Ordered: Thu Sep 05 23:38:57 MYT 2024
+Product 1 - Quantity: 2
+Product 2 - Quantity: 3
+Total: $80.00
+Tax (6%): $4.80
+Grand Total: $84.80
+Payment Method: Debit Card
+--------------------
+Order ID: ORD0004
+Date Ordered: Thu Sep 05 23:45:22 MYT 2024
+Products and Quantities:
+Product 1 - Quantity: 2
+Product 2 - Quantity: 3
+Grand Total: $80.00
+Payment Method: Cash
+----------
+Order ID: ORD0005
+Date Ordered: Date@56e35f0d
+Product1: Category1 - Quantity: 2
+Product2: Category2 - Quantity: 1
+Grand Total: $42.40
+Payment Method: PayPal
+--------------------
+Order ID: ORD0006
+Date Ordered: Date@12167b87
+Product1: Category1 - Quantity: 2
+Product2: Category2 - Quantity: 1
+Grand Total: $42.40
+Payment Method: Credit Card
+--------------------
+Order ID: ORD0007
+Date Ordered: Date@21ccaa84
+cat1: prod1 - Quantity: 2
+cat2: prod2 - Quantity: 1
+Grand Total: $42.40
+Payment Method: Credit Card
+--------------------
+Order ID: ORD0008
+Date Ordered: Date@7aae975e
+cat1: prod1 - Quantity: 2
+cat2: prod2 - Quantity: 1
+Grand Total: $42.40
+Payment Method: Credit Card
+--------------------
+Order ID: ORD0009
+Date Ordered: Date@42ee7a92
+cat1: prod1 - Quantity: 2
+cat2: prod2 - Quantity: 1
+Grand Total: $42.40
+Payment Method: Credit Card
+--------------------
+Order ID: ORD0010
+Date Ordered: 2024-09-06 12:25:36
+prod1 - Quantity: 2
+prod2 - Quantity: 1
+Grand Total: $42.4
+Payment Method: Cash
+--------------------
+Order ID: ORD0010
+Date Ordered: 2024-09-06 12:25:36
+prod1 - Quantity: 2
+prod2 - Quantity: 1
+Grand Total: $42.4
+Payment Method: Cash
+--------------------
+Order ID: ORD0011
+Date Ordered: 2024-09-06 12:39:43
+prod1 - Quantity: 2
+prod2 - Quantity: 1
+Grand Total: $42.4
+Payment Method: Cash
+--------------------
+Order ID: ORD0011
+Date Ordered: 2024-09-06 12:39:43
+prod1 - Quantity: 2
+prod2 - Quantity: 1
+Grand Total: $42.4
+Payment Method: Cash
+--------------------
+Order ID: ORD0012
+Date Ordered: 2024-09-06 12:41:20
+prod1 - Quantity: 2
+prod2 - Quantity: 1
+Grand Total: $42.4
+Payment Method: Cash
+--------------------
+Order ID: ORD0012
+Date Ordered: 2024-09-06 12:41:20
+prod1 - Quantity: 2
+prod2 - Quantity: 1
+Grand Total: $42.4
+Payment Method: Cash
+--------------------
+Order ID: ORD0013
+Date Ordered: 2024-09-06 12:57:57
+shirt1 (Size: XL) - Quantity: 2
+dress2 (Size: L) - Quantity: 1
+Grand Total: $53.0
+Payment Method: Cash
+--------------------
+Order ID: ORD0014
+Date Ordered: 2024-09-06 13:04:09
+ProductID: C01-1023-XL Quantity: 2
+ProductID: C02-1023-L Quantity: 1
+Grand Total: $53.0
+Payment Method: Bank Transfer
+--------------------
+Order ID: ORD0015
+Date Ordered: 2024-09-06 15:05:14
+cat1: prod1 - Quantity: 2
+cat2: prod2 - Quantity: 1
+Grand Total: RM42.40
+Payment Method: Credit Card
+--------------------
+Order ID: ORD0016
+Date Ordered: 2024-09-06 15:10:27
+cat1: prod1 - Quantity: 2
+cat2: prod2 - Quantity: 1
+Grand Total: RM42.40
+Payment Method: Credit Card
+--------------------
+Order ID: ORD0017
+Date Ordered: 2024-09-06 15:38:33
+ProductID: C01-1023-XL Quantity: 2
+ProductID: C02-1023-L Quantity: 1
+Grand Total: $53.0
+Payment Method: Bank Transfer
+--------------------
+Order ID: ORD0018
+Date Ordered: 2024-09-06 15:54:09
+ProductID: C01-1023-XL Quantity: 2
+ProductID: C02-1023-L Quantity: 1
+Grand Total: $53.0
+Payment Method: Cash
+--------------------
