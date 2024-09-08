@@ -2,6 +2,7 @@ public class Cancellation extends Stock{
     private String cancelID;
     private Order order;
     private static int count=0;
+    private String status;
     //Attributes
     public Cancellation(Product product, int qty, Order order){
         cancelID=String.format("%s%03d","CA",++count);
@@ -20,7 +21,15 @@ public class Cancellation extends Stock{
         setProdandQty(product, qty);
     }
     //Constructor
-    public void setCancelID(String cancelID){
+    public void setStatus(String status){
+        if(status.equals("Pending")||status.equals("Approved")||status.equals("Rejected")){
+            this.status=status;
+        }
+        else{
+            System.out.println("Invalid Status.");
+        }
+    }
+    public void changeCancelID(String cancelID){
         if(cancelID.matches("CA\\d+")&& cancelID.length()==5 && Integer.parseInt(cancelID.replaceAll("[^0-9]", ""))!=count){//REGEX FOR CANCELID AND TO ENSURE IT IS NOT A DUPLICATE OF LATEST ID
             if(Integer.parseInt(cancelID.replaceAll("[^0-9]", ""))>count){ //ENSURE NO DUPLICATE IDs
                 count=Integer.parseInt(cancelID.replaceAll("[^0-9]", ""));
@@ -58,6 +67,9 @@ public class Cancellation extends Stock{
     }
     public String getCancelID(){
         return cancelID;
+    }
+    public String getStatus(){
+        return status;
     }
     //Getters
 }

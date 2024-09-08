@@ -1,34 +1,33 @@
-
 public class StockOut extends Stock{
-    private String sOutID;
+    private String stockOutID;
     private Order order;
     private static int count=0;
     public StockOut(){
-        sOutID=String.format("%s%04d","SO",++count);
+        stockOutID=String.format("%s%04d","SO",++count);
     }
     public StockOut(Product product, int qty){
-        sOutID=String.format("%s%04d","SO",++count);
+        stockOutID=String.format("%s%04d","SO",++count);
         setProdandQty(product, qty);
     }
     public StockOut(Order order){
-        sOutID=String.format("%s%04d","SO",++count);
+        stockOutID=String.format("%s%04d","SO",++count);
         setOrder(order);
     }
     public StockOut(Order order, Product product, int qty){
-        sOutID=String.format("%s%04d","SO",++count);
+        stockOutID=String.format("%s%04d","SO",++count);
         setProdandQty(product, qty);
         setOrder(order);
     }
     //Constructors
-    public void setSOID(String sOutID){
-        if(sOutID.matches("SO\\d+") && sOutID.length()==6 && Integer.parseInt(sOutID.replaceAll("[^0-9]", ""))!=count){//REGEX FOR SOID AND TO ENSURE IT IS NOT A DUPLICATE OF LATEST ID
-            if(Integer.parseInt(sOutID.replaceAll("[^0-9]", ""))>count){ //ENSURE NO DUPLICATE IDs
-                count=Integer.parseInt(sOutID.replaceAll("[^0-9]", ""));
+    public void changeSOID(String stockOutID){
+        if(stockOutID.matches("SO\\d+") && stockOutID.length()==6 && Integer.parseInt(stockOutID.replaceAll("[^0-9]", ""))!=count){//REGEX FOR SOID AND TO ENSURE IT IS NOT A DUPLICATE OF LATEST ID
+            if(Integer.parseInt(stockOutID.replaceAll("[^0-9]", ""))>count){ //ENSURE NO DUPLICATE IDs
+                count=Integer.parseInt(stockOutID.replaceAll("[^0-9]", ""));
             }
-            this.sOutID=sOutID;
+            this.stockOutID=stockOutID;
         }
         else{
-            System.out.println("Invalid Cancellation ID");
+            System.out.println("Invalid Stock Out ID!");
         }
     }
     //USE WITH CAUTION!!!! COULD BREAK SYSTEM
@@ -53,7 +52,7 @@ public class StockOut extends Stock{
         return count;
     }
     public String getSOID(){
-        return sOutID;
+        return stockOutID;
     }
     //Getters
 }

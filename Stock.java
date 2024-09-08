@@ -7,9 +7,22 @@ public abstract class Stock{
         date=new CDate();
     }
     //Constuctor
-    public void setQty(boolean stockIn, int qty){
-        if(qty<=0){
-            System.out.println("Quantity must be 1 or more!");
+    public boolean setQty(boolean stockIn, int qty){
+        if(qty<=0){//quantity must be more than 0
+            System.out.println("Invalid quantity!");
+            return false;
+        }
+        else if(product==null){//product must be set
+            System.out.println("Product not set! Changes cannot be made.");
+            return false;
+        }
+        else if (stockIn && this.qty-qty>product.qty){//check if there is enough stock
+            System.out.println("Not enough stock if this record is changed to a quantity of lower value!");
+            return false;
+        }
+        else if(!(stockIn) && qty-this.qty>product.qty){
+            System.out.println("Not enough stock to stock out!");
+            return false;
         }
         else{
             if(product!=null && stockIn){
@@ -21,11 +34,21 @@ public abstract class Stock{
                 product.qty+=this.qty;
             }
             this.qty=qty;
+            return true;
         }
     }
-    public void setProdandQty(boolean stockIn, Product product, int qty){
-        if(qty<=0){
-            System.out.println("Quantity must be 1 or more!");
+    public boolean setProdandQty(boolean stockIn, Product product, int qty){
+        if(qty<=0){//quantity must be more than 0
+            System.out.println("Quantity must be more than 0!");
+            return false;
+        }
+        else if (stockIn && this.qty>this.product.qty){
+            System.out.println("Not enough stock to undo the stock in of the old product!\nConsider making a new stock in record for the old product first.");
+            return false;
+        }
+        else if(!(stockIn) && qty>product.qty){
+            System.out.println("Not enough stock to stock out!");
+            return false;
         }
         else{try{
             if(stockIn){
@@ -44,6 +67,7 @@ public abstract class Stock{
                 product.qty-=qty;
                 this.qty=qty;
             }
+            return true;
             }catch (Exception e){
                 if(this.product!=null && stockIn){ 
                     product.qty+=this.qty;
@@ -52,6 +76,7 @@ public abstract class Stock{
                     product.qty-=this.qty;
                 }
                 System.out.println("Error referencing Product object");
+                return false;
             }
         }
     }
