@@ -1,33 +1,36 @@
 import java.io.*;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Order {
     private static final String ORDER_FILE = "Order.txt";
     private static int orderCount = 0; // Default value, will be updated
     private String orderID;
-    private Date dateOrdered;
+    private CDate dateOrdered;
     private double payAmt;
     private List<Product> prodList;
+    private List<String> sizes; // Added to handle sizes
     private List<Integer> qty;
     private List<Double> subtotals;
     private String status;
     private double tax;
     private double total;
+    private String paymentMethod;
 
     private static final DecimalFormat df = new DecimalFormat("0.00"); // Decimal format for 2 decimal places
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Date format for output
 
     public Order() {
-        this.orderID = generateOrderID();
-        this.dateOrdered = new Date(); // Use java.util.Date
+        this.orderID="ORD0001";
+        //this.orderID = generateOrderID();
+        this.dateOrdered = new CDate(); // Use CDate
         this.prodList = new ArrayList<>();
+        this.sizes = new ArrayList<>(); // Initialize sizes list
         this.qty = new ArrayList<>();
         this.subtotals = new ArrayList<>();
         this.status = "pending";
         this.tax = 0.0;
         this.total = 0.0;
+        this.paymentMethod = "";
     }
 
     private String generateOrderID() {
@@ -57,8 +60,9 @@ public class Order {
         return String.format("ORD%04d", orderCount);
     }
 
-    public void addProduct(Product product, int quantity) {
+    public void addProduct(Product product, String size, int quantity) {
         prodList.add(product);
+        sizes.add(size); // Add size to sizes list
         qty.add(quantity);
         updateCalculations();
     }
@@ -66,6 +70,7 @@ public class Order {
     public void removeProduct(int index) {
         if (index >= 0 && index < prodList.size()) {
             prodList.remove(index);
+            sizes.remove(index); // Remove size
             qty.remove(index);
             subtotals.remove(index);
             updateCalculations();
@@ -90,12 +95,33 @@ public class Order {
         payAmt = Double.parseDouble(df.format(payAmt));
     }
 
+    public void saveOrder() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(ORDER_FILE, true))) {
+            writer.write("Order ID: " + orderID + "\n");
+            writer.write("Date Ordered: " + dateOrdered.getDateTime() + "\n");
+    
+            for (int i = 0; i < prodList.size(); i++) {
+                Product product = prodList.get(i);
+                int quantity = qty.get(i);
+                writer.write("ProductID: " + product.getProdID() + " Quantity: " + quantity + "\n");
+            }
+    
+            writer.write("Grand Total: RM" + new DecimalFormat("#.00").format(payAmt) + "\n");
+            writer.write("Payment Method: " + paymentMethod + "\n");
+            writer.write("Order Status: Paid\n");
+            writer.write("--------------------------------------------------\n");
+        } catch (IOException e) {
+            System.err.println("Error saving order: " + e.getMessage());
+        }
+    }
+    
+
     public String getOrderID() {
         return orderID;
     }
 
     public String getDateOrdered() {
-        return sdf.format(dateOrdered); // Format date as a string
+        return dateOrdered.getDateTime(); // Use CDate's getDateTime()
     }
 
     public double getPayAmt() {
@@ -106,6 +132,10 @@ public class Order {
         return prodList;
     }
 
+    public List<String> getSizes() {
+        return sizes; // Getter for sizes
+    }
+    
     public List<Integer> getQty() {
         return qty;
     }
@@ -129,6 +159,26 @@ public class Order {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public void setOrderID(String orderID) {
+        this.orderID = orderID;
+    }
+    
+    public void setDateOrdered(CDate dateOrdered) {
+        this.dateOrdered = dateOrdered;
+    }
+    
+    public void setPayAmt(double payAmt) {
+        this.payAmt = payAmt;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+    
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }    
 
     // Getter for ORDER_FILE
     public static String getOrderFile() {

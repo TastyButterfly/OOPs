@@ -1,33 +1,52 @@
+import java.util.*;
+import javax.swing.*;
+
 public class StockOut extends Stock{
     private String stockOutID;
+    private static Set<String> stockOutIDSet=new HashSet<String>();
     private Order order;
     private static int count=0;
     public StockOut(){
-        stockOutID=String.format("%s%04d","SO",++count);
+        while(stockOutIDSet.contains(String.format("%s%04d","SO",++count))){
+            if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
+        }//ENSURE NO DUPLICATE IDs
+        stockOutID=String.format("%s%04d","SO",count);
+        stockOutIDSet.add(stockOutID);
     }
-    public StockOut(Product product, int qty){
-        stockOutID=String.format("%s%04d","SO",++count);
-        setProdandQty(product, qty);
+    public StockOut(Product product, int qty, String size){
+        while(stockOutIDSet.contains(String.format("%s%04d","SO",++count))){
+            if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
+        }//ENSURE NO DUPLICATE IDs
+        stockOutID=String.format("%s%04d","SO",count);
+        stockOutIDSet.add(stockOutID);
+        setPQS(product, qty, size);
     }
     public StockOut(Order order){
-        stockOutID=String.format("%s%04d","SO",++count);
+        while(stockOutIDSet.contains(String.format("%s%04d","SO",++count))){
+            if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
+        }//ENSURE NO DUPLICATE IDs
+        stockOutID=String.format("%s%04d","SO",count);
+        stockOutIDSet.add(stockOutID);
         setOrder(order);
     }
-    public StockOut(Order order, Product product, int qty){
-        stockOutID=String.format("%s%04d","SO",++count);
-        setProdandQty(product, qty);
+    public StockOut(Order order, Product product, int qty, String size){
+        while(stockOutIDSet.contains(String.format("%s%04d","SO",++count))){
+            if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
+        }//ENSURE NO DUPLICATE IDs
+        stockOutID=String.format("%s%04d","SO",count);
+        stockOutIDSet.add(stockOutID);
+        setPQS(product, qty, size);
         setOrder(order);
     }
     //Constructors
     public void changeSOID(String stockOutID){
-        if(stockOutID.matches("SO\\d+") && stockOutID.length()==6 && Integer.parseInt(stockOutID.replaceAll("[^0-9]", ""))!=count){//REGEX FOR SOID AND TO ENSURE IT IS NOT A DUPLICATE OF LATEST ID
-            if(Integer.parseInt(stockOutID.replaceAll("[^0-9]", ""))>count){ //ENSURE NO DUPLICATE IDs
-                count=Integer.parseInt(stockOutID.replaceAll("[^0-9]", ""));
-            }
+        if(stockOutID.matches("SO\\d+")&& stockOutID.length()==6 && !(stockOutIDSet.contains(stockOutID))){//REGEX FOR SOID AND TO ENSURE IT IS NOT A DUPLICATE OF LATEST ID
+            stockOutIDSet.remove(this.stockOutID);
             this.stockOutID=stockOutID;
+            stockOutIDSet.add(stockOutID);
         }
         else{
-            System.out.println("Invalid Stock Out ID!");
+            JOptionPane.showMessageDialog(null, "Invalid Stock Out ID!", "Warning", JOptionPane.WARNING_MESSAGE);
         }
     }
     //USE WITH CAUTION!!!! COULD BREAK SYSTEM
@@ -35,17 +54,20 @@ public class StockOut extends Stock{
         try{
             this.order=order;
         }catch (Exception e){
-            System.out.println("Error setting order.");
+            JOptionPane.showMessageDialog(null, "Invalid Order!", "Warning", JOptionPane.WARNING_MESSAGE);
         }
     }
-    public void setQty(int qty){
-       super.setQty(false, qty);
+    public boolean setQty(int qty){
+       return super.setQty(false, qty);
     }
-    public void setProdandQty(Product product, int qty){
-        super.setProdandQty(false,product,qty);
+    public boolean setProdandQty(Product product, int qty){
+        return super.setProdandQty(false,product,qty);
+    }
+    public boolean setPQS(Product product, int qty, String size){
+        return super.setPQS(false,product,qty,size);
     }
     //Setters
-    public Order getOrderObj(){
+    public Order getOrder(){
         return order;
     }
     public int getCount(){

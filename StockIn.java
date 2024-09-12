@@ -1,49 +1,70 @@
+import javax.swing.JOptionPane;
+import java.util.*;
+
 public class StockIn extends Stock{
     private String stockInID;
+    private static Set<String> stockInIDSet=new HashSet<String>();
     private static int count=0;
     private StockRequest SR;
     private int temp;
     public StockIn(){
-        stockInID=String.format("%s%04d","SI",++count);
+        while(stockInIDSet.contains(String.format("%s%04d","SI",++count))){
+            if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
+        }//ENSURE NO DUPLICATE IDs
+        stockInID=String.format("%s%04d","SI",count);
+        stockInIDSet.add(stockInID);
     }
     public StockIn(StockRequest SR){
-        stockInID=String.format("%s%04d","SI",++count);
+        while(stockInIDSet.contains(String.format("%s%04d","SI",++count))){
+            if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
+        }//ENSURE NO DUPLICATE IDs
+        stockInID=String.format("%s%04d","SI",count);
+        stockInIDSet.add(stockInID);
         setSR(SR);
     }
-    public StockIn(Product product, int qty){
-        stockInID=String.format("%s%04d","SI",++count);
-        setProdandQty(product, qty);
+    public StockIn(Product product, int qty, String size){
+        while(stockInIDSet.contains(String.format("%s%04d","SI",++count))){
+            if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
+        }//ENSURE NO DUPLICATE IDs
+        stockInID=String.format("%s%04d","SI",count);
+        stockInIDSet.add(stockInID);
+        setPQS(product, qty, size);
     }
-    public StockIn(StockRequest SR, Product product, int qty){
-        stockInID=String.format("%s%04d","SI",++count);
+    public StockIn(StockRequest SR, Product product, int qty, String size){
+        while(stockInIDSet.contains(String.format("%s%04d","SI",++count))){
+            if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
+        }//ENSURE NO DUPLICATE IDs
+        stockInID=String.format("%s%04d","SI",count);
+        stockInIDSet.add(stockInID);
         setSR(SR);
-        setProdandQty(product, qty);
+        setPQS(product, qty,size);
     }
     //Constructors
     public void changeSIID(String stockInID){
-        if(stockInID.matches("SI\\d+") && stockInID.length()==6 && Integer.parseInt(stockInID.replaceAll("[^0-9]", ""))!=count){//REGEX FOR SOID AND TO ENSURE IT IS NOT A DUPLICATE OF LATEST ID
-            if(Integer.parseInt(stockInID.replaceAll("[^0-9]", ""))>count){ //ENSURE NO DUPLICATE IDs
-                count=Integer.parseInt(stockInID.replaceAll("[^0-9]", ""));
-            }
+        if(stockInID.matches("SI\\d+")&& stockInID.length()==6 && !(stockInIDSet.contains(stockInID))){//REGEX FOR SIID AND TO ENSURE IT IS NOT A DUPLICATE OF LATEST ID
+            stockInIDSet.remove(this.stockInID);
             this.stockInID=stockInID;
+            stockInIDSet.add(stockInID);
         }
         else{
-            System.out.println("Invalid Stock In ID!");
+            JOptionPane.showMessageDialog(null, "Invalid Stock In ID!", "Warning", JOptionPane.WARNING_MESSAGE);
         }
     }
     //USE WITH CAUTION!!!! COULD BREAK SYSTEM
     public void setSR(StockRequest SR){
         try{
-            if(product==SR.getProductObj()){
-                SR.setOutstanding(SR.getOutstanding()+qty);
+            if(product==SR.getProduct()){
+                if(SR!=null){
+                    SR.setOutstanding(SR.getOutstanding()+qty);
+                }
                 this.SR=SR;
                 SR.setOutstanding(SR.getOutstanding()-qty);
             }
             else{
-                System.out.println("Product does not match Stock Request.");
+                JOptionPane.showMessageDialog(null, "Product does not match Stock Request.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);
             }
         }catch (Exception e){
-            System.out.println("Error setting Stock Request.");
+            JOptionPane.showMessageDialog(null, "Error setting Stock Request.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
     public boolean setQty(int qty){
@@ -69,7 +90,7 @@ public class StockIn extends Stock{
     }
     public boolean setProdandQty(Product product, int qty){
         temp=this.qty;
-        if(SR!=null && super.setProdandQty(true,product,qty) && product==SR.getProductObj()){
+        if(SR!=null && super.setProdandQty(true,product,qty) && product==SR.getProduct()){
             SR.setOutstanding((SR.getOutstanding()+temp));
             SR.setOutstanding((SR.getOutstanding()-qty));
             if(SR.getOutstanding()<=0){
@@ -85,6 +106,37 @@ public class StockIn extends Stock{
             return true;
         }
         else{
+            return false;
+        }
+    }
+    public boolean setPQS(Product product, int qty, String size){
+        temp=this.qty;
+        if(SR!=null && product==SR.getProduct() && size.equals(SR.getSize())){
+            if(super.setPQS(true,product,qty,size)){
+                SR.setOutstanding((SR.getOutstanding()+temp));
+                SR.setOutstanding((SR.getOutstanding()-qty));
+                if(SR.getOutstanding()<=0){
+                    SR.setStatus("Fulfilled");
+                }
+                else{
+                    SR.setStatus("Partially Fulfilled");
+                }
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+        else if(SR==null){
+            super.setPQS(true,product,qty,size);
+            return true;
+        }
+        else if(product!=SR.getProduct()||size!=SR.getSize()){
+            JOptionPane.showMessageDialog(null, "Product or size does not match Stock Request.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        else{
+            JOptionPane.showMessageDialog(null, "Unexpected error occured.", "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
     }

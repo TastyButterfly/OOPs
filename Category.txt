@@ -1,0 +1,3 @@
+C01,Tops
+C02,Bottoms
+C03,Dress
