@@ -1,6 +1,5 @@
 import java.util.List;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,9 +11,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 
 public class StockInMenu {
@@ -22,7 +18,7 @@ public class StockInMenu {
     private static List<Product> prod;
     private static List<StockRequest> SRList;
     private static int index=0;
-    private static String loggedInUsername="TestUser";
+    private static String loggedInUsername="Staff";
     private static MyFrame mainFrame;
     private static SRRW srrw;
     JPanel panel=new JPanel();
@@ -463,7 +459,7 @@ public class StockInMenu {
 
             // Create a JScrollPane to make the text area scrollable
             JScrollPane scrollPane = new JScrollPane(table);
-            scrollPane.setPreferredSize(new Dimension(400, 223));
+            scrollPane.setPreferredSize(new Dimension(400, 198));
 
             // Show the details in a JOptionPane
             JOptionPane.showMessageDialog(null, scrollPane, "Record Details", JOptionPane.INFORMATION_MESSAGE);

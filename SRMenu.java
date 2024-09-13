@@ -12,19 +12,19 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.format.DateTimeParseException;
 
-public class StockOutMenu {
-    private static List<StockOut> stockOut=new ArrayList<>();
+public class SRMenu{
+    private static List<StockRequest> SRList= new ArrayList<StockRequest>();
     private static List<Product> prod;
-    private static String loggedInUsername="Staff";
-    private static MyFrame mainFrame;
     private static ProductDatabase pd;
+    private static MyFrame mainFrame;
+    private static String loggedInUserName="Staff";
     JPanel panel=new JPanel();
     JButton add=new JButton("Add Stock Out");
     JButton modify=new JButton("Modify Stock Out");
     JButton back=new JButton("Back");
     JButton display=new JButton("Display Stock Out");
     JButton delete=new JButton("Delete Stock Out");
-    public StockOutMenu(){
+    public SRMenu(){
         pd=new ProductDatabase();
         prod=new ArrayList<Product>(pd.getProducts().values());
         readStaffProduct();
@@ -35,32 +35,32 @@ public class StockOutMenu {
         panel.add(display);
         panel.add(delete);
         panel.add(back);
-        mainFrame=new MyFrame(loggedInUsername);
+        mainFrame=new MyFrame(loggedInUserName);
         mainFrame.setContentPanel(panel);
         mainFrame.setSize(600,600);
         mainFrame.setVisible(true);
         add.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                addStockOut();
+                addStockRequest();
             }
         });
         modify.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                modifyStockOut();
+                modifyStockRequest();
             }
         });
         display.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                displayStockOut();
+                displayStockRequest();
             }
         });
         delete.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                deleteStockOut();
+                deleteStockRequest();
             }
         });
         back.addActionListener(new ActionListener() {
@@ -145,25 +145,27 @@ public class StockOutMenu {
         }
     }
     public void writeToFile(){
-        try (FileWriter fw = new FileWriter("StockOut.csv");
+        try (FileWriter fw = new FileWriter("StockRequest.csv");
         BufferedWriter bw = new BufferedWriter(fw);
         PrintWriter pw = new PrintWriter(bw)) {
 
        // Optionally, write the header line if needed
-       pw.println("Stock Out ID,Product ID,Quantity,Size,Day,Month,Year,Hour,Minute,Second");
+       pw.println("Stock Request ID,Status,Product ID,Quantity,Outstanding,Size,Day,Month,Year,Hour,Minute,Second");
 
-       for (StockOut so: stockOut) {
-           if (so != null) {
-               pw.println(so.getSOID() + "," +
-                           so.getProduct().getProdID() + "," +
-                           so.getQty() + "," +
-                           so.getSize() + "," +
-                           so.getDate().getDay() + "," +
-                           so.getDate().getMonthValue() + "," +
-                           so.getDate().getYear() + "," +
-                           so.getDate().getHour() + "," +
-                           so.getDate().getMinute() + "," +
-                           so.getDate().getSecond());
+       for (StockRequest sr: SRList) {
+           if (sr != null) {
+               pw.println(sr.getSRID() + "," +
+                           sr.getStatus() + "," +
+                           sr.getProduct().getProdID() + "," +
+                           sr.getQty() + "," +
+                           sr.getOutstanding() + "," +
+                           sr.getSize() + "," +
+                           sr.getDate().getDay() + "," +
+                           sr.getDate().getMonthValue() + "," +
+                           sr.getDate().getYear() + "," +
+                           sr.getDate().getHour() + "," +
+                           sr.getDate().getMinute() + "," +
+                           sr.getDate().getSecond());
            }
        }
     }catch (Exception e) {
@@ -176,22 +178,22 @@ public class StockOutMenu {
         }
     }
     public boolean readFromFile(){
-        Path path = Paths.get("StockOut.csv");
+        Path path = Paths.get("StockRequest.csv");
         try (BufferedReader br = Files.newBufferedReader(path)) {
             String line;
-            stockOut.clear(); // Clear the existing list to avoid duplicates
+            SRList.clear(); // Clear the existing list to avoid duplicates
 
             // Skip the header line if present
             br.readLine();
 
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(",");
-                if (fields.length == 10) {
+                if (fields.length == 12) {
                     if (searchProduct(fields[1])==null) {
                         JOptionPane.showMessageDialog(null, "Product ID for "+fields[0]+" not found.", "Warning", JOptionPane.WARNING_MESSAGE);
                     }
-                    StockOut so = new StockOut(fields[0], searchProduct(fields[1]), Integer.parseInt(fields[2]), fields[3], Integer.parseInt(fields[4]), Integer.parseInt(fields[5]), Integer.parseInt(fields[6]), Integer.parseInt(fields[7]), Integer.parseInt(fields[8]), Integer.parseInt(fields[9]));
-                    stockOut.add(so);
+                    StockRequest sr = new StockRequest(fields[0], fields[1], searchProduct(fields[2]), Integer.parseInt(fields[3]), Integer.parseInt(fields[4]), fields[5], Integer.parseInt(fields[6]), Integer.parseInt(fields[7]), Integer.parseInt(fields[8]), Integer.parseInt(fields[9]), Integer.parseInt(fields[10]), Integer.parseInt(fields[11]));
+                    SRList.add(sr);
                 }
             }
             return true;
@@ -215,14 +217,14 @@ public class StockOutMenu {
             return null;
         }
     }
-    public StockOut searchSO(String SOID){
+    public StockRequest searchSR(String SRID){
         try{
-            for (StockOut so : stockOut) {
-                if (so.getSOID().equals(SOID)) {
-                    return so;
+            for (StockRequest sr : SRList) {
+                if (sr.getSRID().equals(SRID)) {
+                    return sr;
                 }
             }
-            JOptionPane.showMessageDialog(null, "StockOut ID not found!", "Warning", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Stock Request ID not found!", "Warning", JOptionPane.WARNING_MESSAGE);
             return null;
         }
         catch(NullPointerException e){
@@ -230,7 +232,7 @@ public class StockOutMenu {
             return null;
         }
     }
-    public void addStockOut(){
+    public void addStockRequest(){
         try{
             String prodID=JOptionPane.showInputDialog("Enter Product ID: ");
             if(searchProduct(prodID)==null) return;
@@ -246,7 +248,7 @@ public class StockOutMenu {
                 return;
             }
             if(searchProduct(prodID).getStaffQty()[searchProduct(prodID).getSizeIndex(size)]>=qty){
-                stockOut.add(new StockOut(searchProduct(prodID),qty,size));
+                stockRequest.add(new stockRequest(searchProduct(prodID),qty,size));
                 JOptionPane.showMessageDialog(null, "Record added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
             }
             else if(searchProduct(prodID).getStaffQty()[searchProduct(prodID).getSizeIndex(size)]<qty){
@@ -423,16 +425,16 @@ public class StockOutMenu {
     }
     public void displayStockOut(){
         try{
-            String stockOutID=JOptionPane.showInputDialog("Enter StockOut ID: ");
+            String stockOutID=JOptionPane.showInputDialog("Enter stockRequest ID: ");
             if(searchSO(stockOutID)==null) return;
-            StockOut StockOut = searchSO(stockOutID);
+            stockRequest stockRequest = searchSO(stockOutID);
             String[][] data = {
-                {"StockOut ID:", StockOut.getSOID()},
-                {"Product ID:", StockOut.getProduct().getProdID()},
-                {"Quantity:", String.valueOf(StockOut.getQty())},
-                {"Size:", StockOut.getSize()},
-                {"Date:", StockOut.getDate().getDMY()},
-                {"Time:", StockOut.getDate().getTime()}
+                {"stockRequest ID:", stockRequest.getSOID()},
+                {"Product ID:", stockRequest.getProduct().getProdID()},
+                {"Quantity:", String.valueOf(stockRequest.getQty())},
+                {"Size:", stockRequest.getSize()},
+                {"Date:", stockRequest.getDate().getDMY()},
+                {"Time:", stockRequest.getDate().getTime()}
             };
             String[] columnNames = {"Attribute", "Value"};
             JTable table = new JTable(data,columnNames);
@@ -465,11 +467,11 @@ public class StockOutMenu {
     }
     public void deleteStockOut(){
         try{
-            String stockOutID=JOptionPane.showInputDialog("Enter StockOut ID: ");
+            String stockOutID=JOptionPane.showInputDialog("Enter stockRequest ID: ");
             if(searchSO(stockOutID)==null) return;
             int choice=JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?", "Warning", JOptionPane.YES_NO_OPTION);
             if(choice==JOptionPane.YES_OPTION){
-                stockOut.remove(searchSO(stockOutID));
+                stockRequest.remove(searchSO(stockOutID));
                 JOptionPane.showMessageDialog(null, "Record deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                 writeToFile();
             }

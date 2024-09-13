@@ -16,9 +16,8 @@ public class CancelMenu {
     private static List<Cancellation> cancel=new ArrayList<>();
     private static List<Product> prod;
     private static List<Order> order;
-    private static int index=0;
     private static OrderFileReader ofr;
-    private static String loggedInUsername="TestUser";
+    private static String loggedInUsername="Staff";
     private static MyFrame mainFrame;
     private static ProductDatabase pd;
     JPanel panel=new JPanel();
@@ -214,7 +213,6 @@ public class CancelMenu {
                     }
                     Cancellation cancellation = new Cancellation(cancelID, status,qty,day,month,year,hour,minute,second,size,product,order);
                     cancel.add(cancellation);
-                    index++;
                 }
             }
             return true;
@@ -296,7 +294,6 @@ public class CancelMenu {
             }
             else if(searchOrder(orderID).getSizes().get(validateProduct(searchProduct(prodID),searchOrder(orderID))).equals(size) && searchOrder(orderID).getQty().get(validateProduct(searchProduct(prodID),searchOrder(orderID)))>=qty){
                 cancel.add(new Cancellation(status, searchProduct(prodID), qty,searchOrder(orderID),size));
-                index++;
                 JOptionPane.showMessageDialog(null, "Record added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
             }
             else if(!searchOrder(orderID).getSizes().get(validateProduct(searchProduct(prodID),searchOrder(orderID))).equals(size)){
@@ -429,21 +426,16 @@ public class CancelMenu {
                 public void actionPerformed(ActionEvent e) {
                     String newQtyStr = JOptionPane.showInputDialog(frame, "Enter new quantity:", searchCancel(cancelID).getQty());
                     try {
-                        int i;
-                        for(i=0;i<searchCancel(cancelID).getOrder().getProdList().size();i++){
-                            if(searchCancel(cancelID).getOrder().getProdList().get(i).getProdID().equals(searchCancel(cancelID).getProduct().getProdID())) break;
-                            else if(i==searchCancel(cancelID).getOrder().getProdList().size()-1){
-                                JOptionPane.showMessageDialog(null, "Product does not match Order.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);
-                                return;
-                            }
+                        if(validateProduct(searchCancel(cancelID).getProduct(),searchCancel(cancelID).getOrder())==-1){
+                            JOptionPane.showMessageDialog(null, "Product does not match Order.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);
                         }
-                        if (newQtyStr != null && !newQtyStr.trim().isEmpty() && searchCancel(cancelID).setQty(searchCancel(cancelID).getStatus(),Integer.parseInt(newQtyStr)) && searchCancel(cancelID).getOrder().getQty().get(i)>=Integer.parseInt(newQtyStr)) {
+                        else if (newQtyStr != null && !newQtyStr.trim().isEmpty() && searchCancel(cancelID).setQty(searchCancel(cancelID).getStatus(),Integer.parseInt(newQtyStr)) && searchCancel(cancelID).getOrder().getQty().get(validateProduct(searchCancel(cancelID).getProduct(),searchCancel(cancelID).getOrder()))>=Integer.parseInt(newQtyStr)) {
                             JOptionPane.showMessageDialog(frame, "Quantity updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                             writeToFile();
                             writeToStaffProd();
                             writeToProd();
                         }
-                        else if(searchCancel(cancelID).getOrder().getQty().get(i)<Integer.parseInt(newQtyStr)){
+                        else if(searchCancel(cancelID).getOrder().getQty().get(validateProduct(searchCancel(cancelID).getProduct(),searchCancel(cancelID).getOrder()))<Integer.parseInt(newQtyStr)){
                             JOptionPane.showMessageDialog(null, "Cancelled quantity exceeds order!.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);
                         }
                         else{
@@ -593,9 +585,9 @@ public class CancelMenu {
         }
     }
     public int validateProduct(Product product , Order order){
-        int index;
-            for(index=0;index<order.getProdList().size();index++){
-                if(order.getProdList().get(index).getProdID().equals(product.getProdID())) return index;
+        int i;
+            for(i=0;i<order.getProdList().size();i++){
+                if(order.getProdList().get(i).getProdID().equals(product.getProdID())) return i;
             }
             JOptionPane.showMessageDialog(null, "Product does not match Order.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);
             return -1;

@@ -4,7 +4,6 @@ import javax.swing.*;
 public class StockOut extends Stock{
     private String stockOutID;
     private static Set<String> stockOutIDSet=new HashSet<String>();
-    private Order order;
     private static int count=0;
     public StockOut(){
         while(stockOutIDSet.contains(String.format("%s%04d","SO",++count))){
@@ -21,28 +20,10 @@ public class StockOut extends Stock{
         stockOutIDSet.add(stockOutID);
         setPQS(product, qty, size);
     }
-    public StockOut(Order order){
-        while(stockOutIDSet.contains(String.format("%s%04d","SO",++count))){
-            if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
-        }//ENSURE NO DUPLICATE IDs
-        stockOutID=String.format("%s%04d","SO",count);
-        stockOutIDSet.add(stockOutID);
-        setOrder(order);
-    }
-    public StockOut(Product product, Order order, int qty, String size){
-        while(stockOutIDSet.contains(String.format("%s%04d","SO",++count))){
-            if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
-        }//ENSURE NO DUPLICATE IDs
-        stockOutID=String.format("%s%04d","SO",count);
-        stockOutIDSet.add(stockOutID);
-        setPQS(product, qty, size);
-        setOrder(order);
-    }
-    public StockOut(String stockOutID, Order order, Product product, int qty, String size, int d, int m, int y, int h, int min, int s){//FOR USE IN LOADING FROM FILE, DO NOT USE FOR NEW RECORDS
+    public StockOut(String stockOutID, Product product, int qty, String size, int d, int m, int y, int h, int min, int s){//FOR USE IN LOADING FROM FILE, DO NOT USE FOR NEW RECORDS
         stockOutIDSet.add(stockOutID);
         this.stockOutID=stockOutID;
         this.product=product;
-        this.order=order;
         this.qty=qty;
         this.size=size;
         date.changeDateTime(d, m, y, h, min, s);
@@ -60,13 +41,6 @@ public class StockOut extends Stock{
         }
     }
     //USE WITH CAUTION!!!! COULD BREAK SYSTEM
-    public void setOrder(Order order){
-        try{
-            this.order=order;
-        }catch (Exception e){
-            JOptionPane.showMessageDialog(null, "Invalid Order!", "Warning", JOptionPane.WARNING_MESSAGE);
-        }
-    }
     public boolean setQty(int qty){
        return super.setQty(false, qty);
     }
@@ -77,9 +51,6 @@ public class StockOut extends Stock{
         return super.setPQS(false,product,qty,size);
     }
     //Setters
-    public Order getOrder(){
-        return order;
-    }
     public int getCount(){
         return count;
     }

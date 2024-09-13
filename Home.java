@@ -130,7 +130,7 @@ public class Home extends JPanel implements ActionListener {
             new StockOutMenu();
         }
         if (e.getSource() == stockRequest) {
-            //ur code
+            new SRMenu();
         }
 
     }

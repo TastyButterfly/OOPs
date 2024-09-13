@@ -8,7 +8,6 @@ public class Cancellation extends Stock{
     private Order order;
     private static int count=0;
     private String status;
-    private int temp;
     //Attributes
     public Cancellation(String status, Product product, int qty, Order order, String size){
         while(cancelIDSet.contains(String.format("%s%04d","CA",++count))){

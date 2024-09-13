@@ -14,6 +14,7 @@ import javax.swing.JOptionPane;
 
 public class SRRW {
     private List<StockRequest> SRList= new ArrayList<StockRequest>();
+    @SuppressWarnings("unused")
     private static int index = 0;
     private List<Product> prod;
     private ProductDatabase pd;
