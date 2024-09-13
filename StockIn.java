@@ -22,17 +22,18 @@ public class StockIn extends Stock{
         stockInIDSet.add(stockInID);
         setSR(SR);
     }
-    public StockIn(Product product, int qty, String size){
+    public StockIn(Product product, int qty, String size, Product staffProduct){
         while(stockInIDSet.contains(String.format("%s%04d","SI",++count))){
             if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
         }//ENSURE NO DUPLICATE IDs
         stockInID=String.format("%s%04d","SI",count);
         stockInIDSet.add(stockInID);
-        setPQS(product, qty, size);
+        setPQS(staffProduct, product, qty, size);
     }
-    public StockIn(String stockInID, StockRequest SR, Product product, int qty, String size, int d, int m, int y, int h, int min, int s){//FOR USE IN LOADING FROM FILE, DO NOT USE FOR NEW RECORDS
+    public StockIn(String stockInID, StockRequest SR, Product product, int qty, String size, int d, int m, int y, int h, int min, int s, Product staffProduct){//FOR USE IN LOADING FROM FILE, DO NOT USE FOR NEW RECORDS
         stockInIDSet.add(stockInID);
         this.stockInID=stockInID;
+        this.staffProduct=staffProduct;
         this.product=product;
         this.qty=qty;
         this.size=size;
@@ -41,14 +42,16 @@ public class StockIn extends Stock{
         count++;
     }
     //Constructors
-    public void changeSIID(String stockInID){
+    public boolean changeSIID(String stockInID){
         if(stockInID.matches("SI\\d+")&& stockInID.length()==6 && !(stockInIDSet.contains(stockInID))){//REGEX FOR SIID AND TO ENSURE IT IS NOT A DUPLICATE OF LATEST ID
             stockInIDSet.remove(this.stockInID);
             this.stockInID=stockInID;
             stockInIDSet.add(stockInID);
+            return true;
         }
         else{
             JOptionPane.showMessageDialog(null, "Invalid Stock In ID!", "Warning", JOptionPane.WARNING_MESSAGE);
+            return false;
         }
     }
     //USE WITH CAUTION!!!! COULD BREAK SYSTEM
@@ -83,16 +86,16 @@ public class StockIn extends Stock{
             return true;
         }
         else if(SR==null){
-            super.setProdandQty(true,product,qty);
+            super.setProdandQty(true, staffProduct, product,qty);
             return true;
         }
         else{
             return false;
         }
     }
-    public boolean setProdandQty(Product product, int qty){
+    public boolean setProdandQty(Product staffProduct, Product product, int qty){
         temp=this.qty;
-        if(SR!=null && super.setProdandQty(true,product,qty) && product==SR.getProduct()){
+        if(SR!=null && super.setProdandQty(true,staffProduct, product,qty) && product==SR.getProduct()){
             SR.setOutstanding((SR.getOutstanding()+temp));
             SR.setOutstanding((SR.getOutstanding()-qty));
             if(SR.getOutstanding()<=0){
@@ -105,17 +108,17 @@ public class StockIn extends Stock{
             return true;
         }
         else if(SR==null){
-            super.setProdandQty(true,product,qty);
+            super.setProdandQty(true, staffProduct, product,qty);
             return true;
         }
         else{
             return false;
         }
     }
-    public boolean setPQS(Product product, int qty, String size){
+    public boolean setPQS(Product staffProduct, Product product, int qty, String size){
         temp=this.qty;
         if(SR!=null && product==SR.getProduct() && size.equals(SR.getSize())){
-            if(super.setPQS(true,product,qty,size)){
+            if(super.setPQS(true,staffProduct,product,qty,size)){
                 SR.setOutstanding((SR.getOutstanding()+temp));
                 SR.setOutstanding((SR.getOutstanding()-qty));
                 if(SR.getOutstanding()<=0){
@@ -132,7 +135,7 @@ public class StockIn extends Stock{
             }
         }
         else if(SR==null){
-            super.setPQS(true,product,qty,size);
+            super.setPQS(true,staffProduct,product,qty,size);
             return true;
         }
         else if(product!=SR.getProduct()||size!=SR.getSize()){
@@ -155,5 +158,4 @@ public class StockIn extends Stock{
         return stockInID;
     }
     //Getters
-
 }

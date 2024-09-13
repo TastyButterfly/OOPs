@@ -27,8 +27,11 @@ public class StockRequest extends Stock{
     public StockRequest(String SRID, String status,Product product, int qty, int outstanding, String size, int d, int m, int y, int h, int min, int s){//FOR USE IN LOADING FROM FILE, DO NOT USE FOR NEW RECORDS
         SRIDSet.add(SRID);
         this.SRID=SRID;
-        setPQS(product, qty,size);
-        setStatus(status);
+        this.product=product;
+        this.qty=qty;
+        this.outstanding=outstanding;
+        this.size=size;
+        this.status=status;
         date.changeDateTime(d, m, y, h, min, s);
         count++;
     }
@@ -44,14 +47,16 @@ public class StockRequest extends Stock{
             JOptionPane.showMessageDialog(null, "Invalid Status.", "Warning", JOptionPane.WARNING_MESSAGE);
         }
     }
-    public void changeSRID(String SRID){
+    public boolean changeSRID(String SRID){
         if(SRID.matches("SR\\d+")&& SRID.length()==6 && !(SRIDSet.contains(SRID))){//REGEX FOR SRID AND TO ENSURE IT IS NOT A DUPLICATE OF LATEST ID
             SRIDSet.remove(this.SRID);
             this.SRID=SRID;
             SRIDSet.add(SRID);
+            return true;
         }
         else{
             JOptionPane.showMessageDialog(null, "Invalid Stock Request ID!", "Warning", JOptionPane.WARNING_MESSAGE);
+            return false;
         }
     }
     //USE WITH CAUTION!!!! COULD BREAK SYSTEM
@@ -64,10 +69,29 @@ public class StockRequest extends Stock{
             if(outstanding<=0){
                setStatus("Fulfilled");      
             }
+            else if(outstanding>0 && outstanding<qty){
+                setStatus("Partially Fulfilled");
+            }
+            else{
+                setStatus("Pending");
+            }
             this.qty=qty;
         }
     }
     public void setOutstanding(int outstanding){
+        if(outstanding<0){
+            JOptionPane.showMessageDialog(null, "Outstanding Quantity must be 0 or more!", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        else if(outstanding==0){
+            setStatus("Fulfilled");
+        }
+        else if(outstanding>0 && outstanding<qty){
+            setStatus("Partially Fulfilled");
+        }
+        else{
+            setStatus("Pending");
+        }
         this.outstanding=outstanding;
     }
     public void setPQS(Product product, int qty, String size){

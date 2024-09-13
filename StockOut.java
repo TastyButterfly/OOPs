@@ -12,17 +12,18 @@ public class StockOut extends Stock{
         stockOutID=String.format("%s%04d","SO",count);
         stockOutIDSet.add(stockOutID);
     }
-    public StockOut(Product product, int qty, String size){
+    public StockOut(Product product, int qty, String size, Product staffProduct){
         while(stockOutIDSet.contains(String.format("%s%04d","SO",++count))){
             if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
         }//ENSURE NO DUPLICATE IDs
         stockOutID=String.format("%s%04d","SO",count);
         stockOutIDSet.add(stockOutID);
-        setPQS(product, qty, size);
+        setPQS(staffProduct, product, qty, size);
     }
-    public StockOut(String stockOutID, Product product, int qty, String size, int d, int m, int y, int h, int min, int s){//FOR USE IN LOADING FROM FILE, DO NOT USE FOR NEW RECORDS
+    public StockOut(String stockOutID, Product product, int qty, String size, int d, int m, int y, int h, int min, int s, Product staffProduct){//FOR USE IN LOADING FROM FILE, DO NOT USE FOR NEW RECORDS
         stockOutIDSet.add(stockOutID);
         this.stockOutID=stockOutID;
+        this.staffProduct=staffProduct;
         this.product=product;
         this.qty=qty;
         this.size=size;
@@ -30,25 +31,27 @@ public class StockOut extends Stock{
         count++;
     }
     //Constructors
-    public void changeSOID(String stockOutID){
+    public boolean changeSOID(String stockOutID){
         if(stockOutID.matches("SO\\d+")&& stockOutID.length()==6 && !(stockOutIDSet.contains(stockOutID))){//REGEX FOR SOID AND TO ENSURE IT IS NOT A DUPLICATE OF LATEST ID
             stockOutIDSet.remove(this.stockOutID);
             this.stockOutID=stockOutID;
             stockOutIDSet.add(stockOutID);
+            return true;
         }
         else{
             JOptionPane.showMessageDialog(null, "Invalid Stock Out ID!", "Warning", JOptionPane.WARNING_MESSAGE);
+            return false;
         }
     }
     //USE WITH CAUTION!!!! COULD BREAK SYSTEM
     public boolean setQty(int qty){
        return super.setQty(false, qty);
     }
-    public boolean setProdandQty(Product product, int qty){
-        return super.setProdandQty(false,product,qty);
+    public boolean setProdandQty(Product staffProduct, Product product, int qty){
+        return super.setProdandQty(false,staffProduct,product,qty);
     }
-    public boolean setPQS(Product product, int qty, String size){
-        return super.setPQS(false,product,qty,size);
+    public boolean setPQS(Product staffProduct, Product product, int qty, String size){
+        return super.setPQS(false,staffProduct,product,qty,size);
     }
     //Setters
     public int getCount(){

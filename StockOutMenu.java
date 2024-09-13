@@ -15,7 +15,8 @@ import java.time.format.DateTimeParseException;
 public class StockOutMenu {
     private static List<StockOut> stockOut=new ArrayList<>();
     private static List<Product> prod;
-    private static String loggedInUsername="Staff";
+    private static List<Product> staffProd;
+    private static String loggedInUsername="Staff  ";
     private static MyFrame mainFrame;
     private static ProductDatabase pd;
     JPanel panel=new JPanel();
@@ -27,7 +28,7 @@ public class StockOutMenu {
     public StockOutMenu(){
         pd=new ProductDatabase();
         prod=new ArrayList<Product>(pd.getProducts().values());
-        readStaffProduct();
+        staffProd=new ArrayList<Product>(pd.getStaffProducts().values());
         if(!readFromFile()) return;
         panel.setLayout(new GridLayout(5,1));
         panel.add(add);
@@ -108,16 +109,16 @@ public class StockOutMenu {
         BufferedWriter bw = new BufferedWriter(fw);
         PrintWriter pw = new PrintWriter(bw)) {
 
-            for (Product p : prod) {
+            for (Product p : staffProd) {
                 if (p != null) {
                     pw.println(p.getProdID() + "," +
                                 p.getProdName() + "," +
                                 String.format("%.2f",p.getPrice()) + "," +
                                 p.getTotalQty() + "," +
-                                p.getStaffQty()[0] + "," +
-                                p.getStaffQty()[1] + "," +
-                                p.getStaffQty()[2] + "," +
-                                p.getStaffQty()[3]);
+                                p.getQtySizes()[0] + "," +
+                                p.getQtySizes()[1] + "," +
+                                p.getQtySizes()[2] + "," +
+                                p.getQtySizes()[3]);
                 }
             }
         }catch (Exception e) {
@@ -127,21 +128,6 @@ public class StockOutMenu {
             else{
                 JOptionPane.showMessageDialog(null, "An unexpected error occurred. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
             }
-        }
-    }
-    public void readStaffProduct(){
-        try (BufferedReader br = new BufferedReader(new FileReader("StaffProduct.txt"))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
-                for (int i = 4; i < parts.length; i++) {
-                    searchProduct(parts[0]).getStaffQty()[i-4] = Integer.parseInt(parts[i]);
-                }
-            }
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error reading from file.", "Error", JOptionPane.ERROR_MESSAGE);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "An unexpected error occurred. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
     public void writeToFile(){
@@ -190,7 +176,7 @@ public class StockOutMenu {
                     if (searchProduct(fields[1])==null) {
                         JOptionPane.showMessageDialog(null, "Product ID for "+fields[0]+" not found.", "Warning", JOptionPane.WARNING_MESSAGE);
                     }
-                    StockOut so = new StockOut(fields[0], searchProduct(fields[1]), Integer.parseInt(fields[2]), fields[3], Integer.parseInt(fields[4]), Integer.parseInt(fields[5]), Integer.parseInt(fields[6]), Integer.parseInt(fields[7]), Integer.parseInt(fields[8]), Integer.parseInt(fields[9]));
+                    StockOut so = new StockOut(fields[0], searchProduct(fields[1]), Integer.parseInt(fields[2]), fields[3], Integer.parseInt(fields[4]), Integer.parseInt(fields[5]), Integer.parseInt(fields[6]), Integer.parseInt(fields[7]), Integer.parseInt(fields[8]), Integer.parseInt(fields[9]),searchStaffProduct(fields[1]));
                     stockOut.add(so);
                 }
             }
@@ -245,11 +231,11 @@ public class StockOutMenu {
                 JOptionPane.showMessageDialog(null, "Invalid size.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            if(searchProduct(prodID).getStaffQty()[searchProduct(prodID).getSizeIndex(size)]>=qty){
-                stockOut.add(new StockOut(searchProduct(prodID),qty,size));
+            if(searchStaffProduct(prodID).getQtySizes()[searchStaffProduct(prodID).getSizeIndex(size)]>=qty){
+                stockOut.add(new StockOut(searchProduct(prodID),qty,size, searchStaffProduct(prodID)));
                 JOptionPane.showMessageDialog(null, "Record added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
             }
-            else if(searchProduct(prodID).getStaffQty()[searchProduct(prodID).getSizeIndex(size)]<qty){
+            else if(searchStaffProduct(prodID).getQtySizes()[searchStaffProduct(prodID).getSizeIndex(size)]<qty){
                 JOptionPane.showMessageDialog(null, "Quantity exceeds that in stock.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -279,7 +265,7 @@ public class StockOutMenu {
             if(searchSO(stockOutID)==null) return;
             JOptionPane.showMessageDialog(null, "Record found.", "Success", JOptionPane.INFORMATION_MESSAGE);
             JFrame frame = new JFrame("Modify Stock Out");
-            frame.setLayout(new GridLayout(8, 1));
+            frame.setLayout(new GridLayout(6, 1));
             frame.setSize(500, 500);
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             Font buttonFont = new Font("Segoe UI", Font.PLAIN, 18);
@@ -287,8 +273,6 @@ public class StockOutMenu {
             // Add buttons for each attribute
             JButton prodIDButton = new JButton("Change Product ID, Size and Quantity");
             prodIDButton.setFont(buttonFont);
-            JButton sizeButton = new JButton("Change Size and Quantity");
-            sizeButton.setFont(buttonFont);
             JButton qtyButton = new JButton("Change Quantity");
             qtyButton.setFont(buttonFont);
             JButton stockOutIDButton = new JButton("Change Stock Out ID");
@@ -305,7 +289,6 @@ public class StockOutMenu {
             // Add buttons to the frame
             frame.add(prodIDButton);
             frame.add(qtyButton);
-            frame.add(sizeButton);
             frame.add(dateButton);
             frame.add(timeButton);
             frame.add(stockOutIDButton);
@@ -318,7 +301,7 @@ public class StockOutMenu {
                     String newProdID = JOptionPane.showInputDialog(frame, "Enter new product ID:", searchSO(stockOutID).getProduct().getProdID());
                     String newQty=JOptionPane.showInputDialog(frame, "Enter new quantity:", searchSO(stockOutID).getQty());
                     String newSize=JOptionPane.showInputDialog(frame, "Enter new size:", searchSO(stockOutID).getSize());
-                    if (newProdID != null && !newProdID.trim().isEmpty()&& searchProduct(newProdID)!=null &&  searchSO(stockOutID).setPQS(searchProduct(newProdID), Integer.parseInt(newQty), newSize)) {
+                    if (newProdID != null && !newProdID.trim().isEmpty()&& searchProduct(newProdID)!=null &&  searchSO(stockOutID).setPQS(searchStaffProduct(newProdID),searchProduct(newProdID), Integer.parseInt(newQty), newSize)) {
                         JOptionPane.showMessageDialog(frame, "Changes made successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         writeToFile();
                         writeToProd();
@@ -339,7 +322,7 @@ public class StockOutMenu {
                             writeToStaffProd();
                             writeToProd();
                         }
-                        else if(searchProduct(searchSO(stockOutID).getProduct().getProdID()).getStaffQty()[searchProduct(searchSO(stockOutID).getProduct().getProdID()).getSizeIndex(searchSO(stockOutID).getSize())]<Integer.parseInt(newQtyStr)){
+                        else if(searchStaffProduct(searchSO(stockOutID).getProduct().getProdID()).getQtySizes()[searchStaffProduct(searchSO(stockOutID).getProduct().getProdID()).getSizeIndex(searchSO(stockOutID).getSize())]<Integer.parseInt(newQtyStr)){
                             JOptionPane.showMessageDialog(null, "Stocked Out quantity exceeds that in stock!.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);
                         }
                         else{
@@ -375,6 +358,21 @@ public class StockOutMenu {
                     }
                     else{
                         JOptionPane.showMessageDialog(frame, "Invalid date format!", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            });
+
+
+            stockOutIDButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String newStockOutID = JOptionPane.showInputDialog(frame, "Enter new Stock Out ID:", searchSO(stockOutID).getSOID());
+                    if (newStockOutID != null && !newStockOutID.trim().isEmpty() && searchSO(stockOutID).changeSOID(newStockOutID)) {
+                        JOptionPane.showMessageDialog(frame, "Stock Out ID updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                        writeToFile();
+                    }
+                    else if(newStockOutID==null || newStockOutID.trim().isEmpty()){
+                        JOptionPane.showMessageDialog(frame, "Record not updated. User entered no input or cancelled.", "Operation stopped.", JOptionPane.INFORMATION_MESSAGE);
                     }
                 }
             });
@@ -483,8 +481,20 @@ public class StockOutMenu {
             }
         }
     }
-    public static void main(String[] args){
-        new StockOutMenu();
-    }   
+    public Product searchStaffProduct(String prodID){
+        try{
+            for (Product p : staffProd) {
+                if (p.getProdID().equals(prodID)) {
+                    return p;
+                }
+            }
+            JOptionPane.showMessageDialog(null, "Product ID not found!", "Error", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+        catch(NullPointerException e){
+            JOptionPane.showMessageDialog(null, "Unexpected error occured.", "Error", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+    }
 }
 

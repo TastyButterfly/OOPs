@@ -1,6 +1,5 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -14,15 +13,12 @@ import javax.swing.JOptionPane;
 
 public class SRRW {
     private List<StockRequest> SRList= new ArrayList<StockRequest>();
-    @SuppressWarnings("unused")
-    private static int index = 0;
     private List<Product> prod;
     private ProductDatabase pd;
 
     public SRRW() {
         pd=new ProductDatabase();
         prod=new ArrayList<Product>(pd.getProducts().values());
-        readStaffProduct();
         if(!readFromFile()) return;
     }
     public void writeToFile(){
@@ -72,7 +68,6 @@ public class SRRW {
                 if (fields.length == 12) {
                     StockRequest sr = new StockRequest(fields[0], fields[1], searchProduct(fields[2]), Integer.parseInt(fields[3]), Integer.parseInt(fields[4]), fields[5], Integer.parseInt(fields[6]), Integer.parseInt(fields[7]), Integer.parseInt(fields[8]), Integer.parseInt(fields[9]), Integer.parseInt(fields[10]), Integer.parseInt(fields[11]));
                     SRList.add(sr);
-                    index++;
                 }
             }
             return true;
@@ -94,21 +89,6 @@ public class SRRW {
         catch(NullPointerException e){
             JOptionPane.showMessageDialog(null, "Unexpected error occured.", "Error", JOptionPane.ERROR_MESSAGE);
             return null;
-        }
-    }
-     public void readStaffProduct(){
-        try (BufferedReader br = new BufferedReader(new FileReader("StaffProduct.txt"))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
-                for (int i = 4; i < parts.length; i++) {
-                    searchProduct(parts[0]).getStaffQty()[i-4] = Integer.parseInt(parts[i]);
-                }
-            }
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error reading from file.", "Error", JOptionPane.ERROR_MESSAGE);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "An unexpected error occurred. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
     public List<StockRequest> getSRList(){

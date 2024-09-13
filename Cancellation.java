@@ -9,14 +9,15 @@ public class Cancellation extends Stock{
     private static int count=0;
     private String status;
     //Attributes
-    public Cancellation(String status, Product product, int qty, Order order, String size){
+    public Cancellation(String status, Product product, int qty, Order order, String size, Product staffProduct){
         while(cancelIDSet.contains(String.format("%s%04d","CA",++count))){
             if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
         }//ENSURE NO DUPLICATE IDs
         cancelID=String.format("%s%04d","CA",count);
         cancelIDSet.add(cancelID);
         this.status=status;
-        setPQS(status, product, qty,size);
+        this.staffProduct=staffProduct;
+        setPQS(status, staffProduct, product, qty,size);
         setOrder(order);
     }
     public Cancellation(Order order){
@@ -34,19 +35,20 @@ public class Cancellation extends Stock{
         cancelID=String.format("%s%04d","CA",count);
         cancelIDSet.add(cancelID);
     }
-    public Cancellation(Product product, int qty, String size){
+    public Cancellation(Product product, int qty, String size, Product staffProduct){
         while(cancelIDSet.contains(String.format("%s%04d","CA",++count))){
             if(count>=9999) count=0;
         }//ENSURE NO DUPLICATE IDs
         cancelID=String.format("%s%04d","CA",count);
         cancelIDSet.add(cancelID);
-        setPQS(status, product, qty,size);
+        setPQS(status, staffProduct, product, qty,size);
     }
-    public Cancellation(String cancelID, String status, int qty, int d, int m, int y, int h, int min, int s,String size, Product product, Order order){//FOR USE IN LOADING FROM FILE, DO NOT USE FOR NEW RECORDS
+    public Cancellation(String cancelID, String status, int qty, int d, int m, int y, int h, int min, int s,String size, Product product, Order order, Product staffProduct){//FOR USE IN LOADING FROM FILE, DO NOT USE FOR NEW RECORDS
         cancelIDSet.add(cancelID);
         this.cancelID=cancelID;
         this.status=status;
         date.changeDateTime(d, m, y, h, min, s);
+        this.staffProduct=staffProduct;
         this.product=product;
         this.qty=qty;
         this.size=size;
@@ -62,7 +64,7 @@ public class Cancellation extends Stock{
         else if(status.equals("Approved")){
             try{
                 product.updateProductQuantities(size, -qty);
-                product.setStaffQty(true, size, qty);
+                staffProduct.updateProductQuantities( size, -qty);
                 this.status=status;
                 return true;
             }
@@ -77,14 +79,16 @@ public class Cancellation extends Stock{
 
         }
     }
-    public void changeCancelID(String cancelID){
+    public boolean changeCancelID(String cancelID){
         if(cancelID.matches("CA\\d+")&& cancelID.length()==6 && !(cancelIDSet.contains(cancelID))){//REGEX FOR CANCELID AND TO ENSURE IT IS NOT A DUPLICATE OF LATEST ID
             cancelIDSet.remove(this.cancelID);
             this.cancelID=cancelID;
             cancelIDSet.add(cancelID);
+            return true;
         }
         else{
             JOptionPane.showMessageDialog(null, "Invalid Cancellation ID!", "Warning", JOptionPane.WARNING_MESSAGE);
+            return false;
         }
     }
     //USE WITH CAUTION!!!! COULD BREAK SYSTEM
@@ -139,8 +143,8 @@ public class Cancellation extends Stock{
             return true;
         }
     }
-    public boolean setProdandQty(String status, Product product, int qty){
-        if(status.equals("Approved")) return super.setProdandQty(true,product,qty);
+    public boolean setProdandQty(String status, Product staffProduct, Product product, int qty){
+        if(status.equals("Approved")) return super.setProdandQty(true,staffProduct,product,qty);
         else if(qty<=0){
             JOptionPane.showMessageDialog(null, "Invalid Quantity.", "Warning", JOptionPane.WARNING_MESSAGE);
             return false;
@@ -155,8 +159,8 @@ public class Cancellation extends Stock{
             return true;
         }
     }
-    public boolean setPQS(String status, Product product, int qty, String size){
-        if(status.equals("Approved")) return super.setPQS(true,product,qty,size);
+    public boolean setPQS(String status, Product staffProduct, Product product, int qty, String size){
+        if(status.equals("Approved")) return super.setPQS(true,staffProduct,product,qty,size);
         else if(qty<=0){
             JOptionPane.showMessageDialog(null, "Invalid Quantity.", "Warning", JOptionPane.WARNING_MESSAGE);
             return false;
@@ -170,6 +174,7 @@ public class Cancellation extends Stock{
             return false;
         }
         else{
+            this.staffProduct=staffProduct;
             this.product=product;
             this.qty=qty;
             this.size=size;

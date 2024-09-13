@@ -16,11 +16,13 @@ import java.time.format.DateTimeParseException;
 public class StockInMenu {
     private static List<StockIn> stockInList=new ArrayList<>();
     private static List<Product> prod;
+    private static List<Product> staffProd;
     private static List<StockRequest> SRList;
     private static int index=0;
-    private static String loggedInUsername="Staff";
+    private static String loggedInUsername="Staff  ";
     private static MyFrame mainFrame;
     private static SRRW srrw;
+    private static ProductDatabase pd;
     JPanel panel=new JPanel();
     JButton add=new JButton("Add Stock In");
     JButton modify=new JButton("Modify Stock In");
@@ -30,6 +32,7 @@ public class StockInMenu {
     public StockInMenu(){
         srrw=new SRRW();
         prod=srrw.getProd();
+        staffProd=new ArrayList<Product>(pd.getStaffProducts().values());
         SRList=srrw.getSRList();
         if(!readFromFile()) return;
         panel.setLayout(new GridLayout(5,1));
@@ -111,16 +114,16 @@ public class StockInMenu {
         BufferedWriter bw = new BufferedWriter(fw);
         PrintWriter pw = new PrintWriter(bw)) {
 
-            for (Product p : prod) {
+            for (Product p : staffProd) {
                 if (p != null) {
                     pw.println(p.getProdID() + "," +
                                 p.getProdName() + "," +
                                 String.format("%.2f",p.getPrice()) + "," +
                                 p.getTotalQty() + "," +
-                                p.getStaffQty()[0] + "," +
-                                p.getStaffQty()[1] + "," +
-                                p.getStaffQty()[2] + "," +
-                                p.getStaffQty()[3]);
+                                p.getQtySizes()[0] + "," +
+                                p.getQtySizes()[1] + "," +
+                                p.getQtySizes()[2] + "," +
+                                p.getQtySizes()[3]);
                 }
             }
         }catch (Exception e) {
@@ -178,7 +181,7 @@ public class StockInMenu {
                     if (searchProduct(fields[2]) == null && searchSR(fields[1]) == null) {
                         JOptionPane.showMessageDialog(null, "Product ID or Stock Request ID for"+ fields[0] +" not found.", "Warning", JOptionPane.WARNING_MESSAGE);
                     }
-                    StockIn si=new StockIn(fields[0],searchSR(fields[1]),searchProduct(fields[2]),Integer.parseInt(fields[3]),fields[4],Integer.parseInt(fields[5]),Integer.parseInt(fields[6]),Integer.parseInt(fields[7]),Integer.parseInt(fields[8]),Integer.parseInt(fields[9]),Integer.parseInt(fields[10]));
+                    StockIn si=new StockIn(fields[0],searchSR(fields[1]),searchProduct(fields[2]),Integer.parseInt(fields[3]),fields[4],Integer.parseInt(fields[5]),Integer.parseInt(fields[6]),Integer.parseInt(fields[7]),Integer.parseInt(fields[8]),Integer.parseInt(fields[9]),Integer.parseInt(fields[10]),searchStaffProduct(fields[2]));
                     stockInList.add(si);
                     index++;
                 }
@@ -251,7 +254,7 @@ public class StockInMenu {
                 JOptionPane.showMessageDialog(null, "Invalid size.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            stockInList.add(new StockIn(searchProduct(prodID),qty,size));
+            stockInList.add(new StockIn(searchProduct(prodID),qty,size,searchStaffProduct(prodID)));
             stockInList.get(index++).setSR(searchSR(SRID));
             JOptionPane.showMessageDialog(null, "Record added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
             writeToFile();
@@ -278,7 +281,7 @@ public class StockInMenu {
             if(searchStockIn(stockInID)==null) return;
             JOptionPane.showMessageDialog(null, "Record found.", "Success", JOptionPane.INFORMATION_MESSAGE);
             JFrame frame = new JFrame("Modify Stock In");
-            frame.setLayout(new GridLayout(8, 1));
+            frame.setLayout(new GridLayout(7, 1));
             frame.setSize(500, 500);
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             Font buttonFont = new Font("Segoe UI", Font.PLAIN, 18);
@@ -286,8 +289,6 @@ public class StockInMenu {
             // Add buttons for each attribute
             JButton prodIDButton = new JButton("Change Product ID, Size and Quantity");
             prodIDButton.setFont(buttonFont);
-            JButton sizeButton = new JButton("Change Size");
-            sizeButton.setFont(buttonFont);
             JButton SRIDButton = new JButton("Change Stock Request ID");
             SRIDButton.setFont(buttonFont);
             JButton qtyButton = new JButton("Change Quantity");
@@ -305,9 +306,8 @@ public class StockInMenu {
 
 
             frame.add(prodIDButton);
-            frame.add(SRIDButton);
+            frame.add(stockInIDButton);
             frame.add(qtyButton);
-            frame.add(sizeButton);
             frame.add(dateButton);
             frame.add(timeButton);
             frame.add(stockInIDButton);
@@ -321,7 +321,7 @@ public class StockInMenu {
                     String newProdID = JOptionPane.showInputDialog(frame, "Enter new product ID:", searchStockIn(stockInID).getProduct().getProdID());
                     String newQty=JOptionPane.showInputDialog(frame, "Enter new quantity:", searchStockIn(stockInID).getQty());
                     String newSize=JOptionPane.showInputDialog(frame, "Enter new size:", searchStockIn(stockInID).getSize());
-                    if (newProdID != null && !newProdID.trim().isEmpty()&& searchProduct(newProdID)!=null &&  searchStockIn(stockInID).setPQS(searchProduct(newProdID), Integer.parseInt(newQty), newSize)) {
+                    if (newProdID != null && !newProdID.trim().isEmpty()&& searchProduct(newProdID)!=null &&  searchStockIn(stockInID).setPQS(searchStaffProduct(newProdID),searchProduct(newProdID), Integer.parseInt(newQty), newSize)) {
                         JOptionPane.showMessageDialog(frame, "Changes made successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         writeToFile();
                         writeToProd();
@@ -331,7 +331,7 @@ public class StockInMenu {
                 }
             });
         
-            SRIDButton.addActionListener(new ActionListener() {
+            stockInIDButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     String newSRID = JOptionPane.showInputDialog(frame, "Enter new Stock Request ID:", searchStockIn(stockInID).getSR().getSRID());
@@ -494,8 +494,20 @@ public class StockInMenu {
             }
         }
     }
-    public static void main(String[] args){
-        new StockInMenu();
-    }   
+    public Product searchStaffProduct(String prodID){
+        try{
+            for (Product p : staffProd) {
+                if (p.getProdID().equals(prodID)) {
+                    return p;
+                }
+            }
+            JOptionPane.showMessageDialog(null, "Product ID not found!", "Error", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+        catch(NullPointerException e){
+            JOptionPane.showMessageDialog(null, "Unexpected error occured.", "Error", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+    }
 }
 

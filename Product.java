@@ -8,7 +8,6 @@ public class Product {
     private double price;
     private int totalQty;
     private int[] qtySizes; // Array to hold quantities for S, M, L, XL
-    private int[] staffQty;
 
     // No-argument constructor
     public Product() {
@@ -18,7 +17,6 @@ public class Product {
         this.price = 0.0; // Default price
         this.totalQty = 0; // Default total quantity
         this.qtySizes = new int[4]; // Array to hold quantities for S, M, L, XL, default to an array of 4 integers
-        this.staffQty = new int[4];
     }
 
     // Constructor for products with sizes
@@ -28,7 +26,6 @@ public class Product {
         this.price = price;
         this.totalQty = totalQty;
         this.qtySizes = new int[]{qtyS, qtyM, qtyL, qtyXL};
-        this.staffQty= new int[]{qtyS, qtyM, qtyL, qtyXL};
     }
 
     // Getters and Setters
@@ -113,32 +110,6 @@ public class Product {
             default:
                 return -1; // Invalid size
         }
-    }
-
-    public boolean setStaffQty(boolean stockIn, String size, int qty){
-        if (getSizeIndex(size) != -1 && qty>=0 && stockIn) {
-            staffQty[getSizeIndex(size)]+=qty;
-            return true;
-        } else if(getSizeIndex(size) != -1 && qty>=0 && !(stockIn)){
-            if(qty>staffQty[getSizeIndex(size)]){
-                System.err.println("Error: Quantity exceeds available stock for size.");
-                return false;
-            }
-            staffQty[getSizeIndex(size)]-=qty;
-            return true;
-        }else {
-            if(getSizeIndex(size)==-1){
-                System.err.println("Error: Invalid size.");
-            }
-            else{
-                System.err.println("Error: Quantity must be 0 or more.");
-            }
-            return false; // Invalid size
-        }
-    }
-
-    public int[] getStaffQty(){
-        return staffQty;
     }
 
 }

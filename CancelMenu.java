@@ -15,9 +15,10 @@ import java.time.format.DateTimeParseException;
 public class CancelMenu {
     private static List<Cancellation> cancel=new ArrayList<>();
     private static List<Product> prod;
+    private static List<Product> staffProd;
     private static List<Order> order;
     private static OrderFileReader ofr;
-    private static String loggedInUsername="Staff";
+    private static String loggedInUsername="Staff  ";
     private static MyFrame mainFrame;
     private static ProductDatabase pd;
     JPanel panel=new JPanel();
@@ -29,6 +30,7 @@ public class CancelMenu {
     public CancelMenu(){
         pd=new ProductDatabase();
         prod=new ArrayList<Product>(pd.getProducts().values());
+        staffProd=new ArrayList<Product>(pd.getStaffProducts().values());
         readStaffProduct();
         ofr=new OrderFileReader();
         order=ofr.getAllOrders();
@@ -112,16 +114,16 @@ public class CancelMenu {
         BufferedWriter bw = new BufferedWriter(fw);
         PrintWriter pw = new PrintWriter(bw)) {
 
-            for (Product p : prod) {
+            for (Product p : staffProd) {
                 if (p != null) {
                     pw.println(p.getProdID() + "," +
                                 p.getProdName() + "," +
                                 String.format("%.2f",p.getPrice()) + "," +
                                 p.getTotalQty() + "," +
-                                p.getStaffQty()[0] + "," +
-                                p.getStaffQty()[1] + "," +
-                                p.getStaffQty()[2] + "," +
-                                p.getStaffQty()[3]);
+                                p.getQtySizes()[0] + "," +
+                                p.getQtySizes()[1] + "," +
+                                p.getQtySizes()[2] + "," +
+                                p.getQtySizes()[3]);
                 }
             }
         }catch (Exception e) {
@@ -139,7 +141,7 @@ public class CancelMenu {
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
                 for (int i = 4; i < parts.length; i++) {
-                    searchProduct(parts[0]).getStaffQty()[i-4] = Integer.parseInt(parts[i]);
+                    searchStaffProduct(parts[0]).getQtySizes()[i-4] = Integer.parseInt(parts[i]);
                 }
             }
         } catch (IOException e) {
@@ -207,11 +209,12 @@ public class CancelMenu {
                     int second = Integer.parseInt(fields[11]);
 
                     Product product = searchProduct(prodID);
+                    Product staffProduct = searchStaffProduct(prodID);
                     Order order = searchOrder(orderID);
                     if (product == null && order == null) {
                         JOptionPane.showMessageDialog(null, "Product ID or Order ID for "+cancelID+" not found.", "Warning", JOptionPane.WARNING_MESSAGE);
                     }
-                    Cancellation cancellation = new Cancellation(cancelID, status,qty,day,month,year,hour,minute,second,size,product,order);
+                    Cancellation cancellation = new Cancellation(cancelID, status,qty,day,month,year,hour,minute,second,size,product,order,staffProduct);
                     cancel.add(cancellation);
                 }
             }
@@ -293,7 +296,7 @@ public class CancelMenu {
                 return;
             }
             else if(searchOrder(orderID).getSizes().get(validateProduct(searchProduct(prodID),searchOrder(orderID))).equals(size) && searchOrder(orderID).getQty().get(validateProduct(searchProduct(prodID),searchOrder(orderID)))>=qty){
-                cancel.add(new Cancellation(status, searchProduct(prodID), qty,searchOrder(orderID),size));
+                cancel.add(new Cancellation(status, searchProduct(prodID), qty,searchOrder(orderID),size, searchStaffProduct(prodID)));
                 JOptionPane.showMessageDialog(null, "Record added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
             }
             else if(!searchOrder(orderID).getSizes().get(validateProduct(searchProduct(prodID),searchOrder(orderID))).equals(size)){
@@ -330,7 +333,7 @@ public class CancelMenu {
             if(searchCancel(cancelID)==null) return;
             JOptionPane.showMessageDialog(null, "Record found.", "Success", JOptionPane.INFORMATION_MESSAGE);
             JFrame frame = new JFrame("Modify Cancellation");
-            frame.setLayout(new GridLayout(9, 1));
+            frame.setLayout(new GridLayout(8, 1));
             frame.setSize(500, 500);
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             Font buttonFont = new Font("Segoe UI", Font.PLAIN, 18);
@@ -340,8 +343,6 @@ public class CancelMenu {
             statusButton.setFont(buttonFont);
             JButton prodIDButton = new JButton("Change Product ID, Size and Quantity");
             prodIDButton.setFont(buttonFont);
-            JButton sizeButton = new JButton("Change Size and Quantity");
-            sizeButton.setFont(buttonFont);
             JButton orderIDButton = new JButton("Change Order ID");
             orderIDButton.setFont(buttonFont);
             JButton qtyButton = new JButton("Change Quantity");
@@ -362,7 +363,6 @@ public class CancelMenu {
             frame.add(prodIDButton);
             frame.add(orderIDButton);
             frame.add(qtyButton);
-            frame.add(sizeButton);
             frame.add(dateButton);
             frame.add(timeButton);
             frame.add(cancelIDButton);
@@ -400,7 +400,7 @@ public class CancelMenu {
                     String newProdID = JOptionPane.showInputDialog(frame, "Enter new product ID:", searchCancel(cancelID).getProduct().getProdID());
                     String newQty=JOptionPane.showInputDialog(frame, "Enter new quantity:", searchCancel(cancelID).getQty());
                     String newSize=JOptionPane.showInputDialog(frame, "Enter new size:", searchCancel(cancelID).getSize());
-                    if (newProdID != null && !newProdID.trim().isEmpty()&& searchProduct(newProdID)!=null &&  searchCancel(cancelID).setPQS(searchCancel(cancelID).getStatus(),searchProduct(newProdID), Integer.parseInt(newQty), newSize)) {
+                    if (newProdID != null && !newProdID.trim().isEmpty()&& searchProduct(newProdID)!=null &&  searchCancel(cancelID).setPQS(searchCancel(cancelID).getStatus(),searchStaffProduct(newProdID),searchProduct(newProdID), Integer.parseInt(newQty), newSize)) {
                         JOptionPane.showMessageDialog(frame, "Changes made successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         writeToFile();
                         writeToProd();
@@ -446,6 +446,21 @@ public class CancelMenu {
                     }
                 }
             });   
+
+            cancelIDButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String newCancelID = JOptionPane.showInputDialog(frame, "Enter new cancellation ID:", searchCancel(cancelID).getCancelID());
+                    if (newCancelID != null && !newCancelID.trim().isEmpty() && searchCancel(newCancelID) == null) {
+                        searchCancel(cancelID).changeCancelID(newCancelID);
+                        JOptionPane.showMessageDialog(frame, "Cancellation ID updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                        writeToFile();
+                    }
+                    else if (newCancelID == null || newCancelID.trim().isEmpty()) {
+                        JOptionPane.showMessageDialog(frame, "Record not updated. User entered no input or cancelled.", "Operation stopped.", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                }
+            });
 
             dateButton.addActionListener(new ActionListener() {
                 @Override
@@ -592,8 +607,20 @@ public class CancelMenu {
             JOptionPane.showMessageDialog(null, "Product does not match Order.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);
             return -1;
     }
-    public static void main(String[] args){
-        new CancelMenu();
-    }   
+    public Product searchStaffProduct(String prodID){
+        try{
+            for (Product p : staffProd) {
+                if (p.getProdID().equals(prodID)) {
+                    return p;
+                }
+            }
+            JOptionPane.showMessageDialog(null, "Product ID not found!", "Error", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+        catch(NullPointerException e){
+            JOptionPane.showMessageDialog(null, "Unexpected error occured.", "Error", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+    }
 }
 

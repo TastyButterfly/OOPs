@@ -19,15 +19,14 @@ public class SRMenu{
     private static MyFrame mainFrame;
     private static String loggedInUserName="Staff";
     JPanel panel=new JPanel();
-    JButton add=new JButton("Add Stock Out");
-    JButton modify=new JButton("Modify Stock Out");
+    JButton add=new JButton("Add Stock Request");
+    JButton modify=new JButton("Modify Stock Request");
     JButton back=new JButton("Back");
-    JButton display=new JButton("Display Stock Out");
-    JButton delete=new JButton("Delete Stock Out");
+    JButton display=new JButton("Display Stock Request");
+    JButton delete=new JButton("Delete Stock Request");
     public SRMenu(){
         pd=new ProductDatabase();
         prod=new ArrayList<Product>(pd.getProducts().values());
-        readStaffProduct();
         if(!readFromFile()) return;
         panel.setLayout(new GridLayout(5,1));
         panel.add(add);
@@ -77,73 +76,6 @@ public class SRMenu{
         delete.setFont(buttonFont);
         back.setFont(buttonFont);
     }
-    public void writeToProd(){
-        try (FileWriter fw = new FileWriter("Product.txt");
-        BufferedWriter bw = new BufferedWriter(fw);
-        PrintWriter pw = new PrintWriter(bw)) {
-
-            for (Product p : prod) {
-                if (p != null) {
-                    pw.println(p.getProdID() + "," +
-                                p.getProdName() + "," +
-                                String.format("%.2f",p.getPrice()) + "," +
-                                p.getTotalQty() + "," +
-                                p.getQtySizes()[0] + "," +
-                                p.getQtySizes()[1] + "," +
-                                p.getQtySizes()[2] + "," +
-                                p.getQtySizes()[3]);
-                }
-            }
-        }catch (Exception e) {
-            if(e instanceof IOException){
-                JOptionPane.showMessageDialog(null, "Error writing to file.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-            else{
-                JOptionPane.showMessageDialog(null, "An unexpected error occurred. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
-    public void writeToStaffProd(){
-        try (FileWriter fw = new FileWriter("StaffProduct.txt");
-        BufferedWriter bw = new BufferedWriter(fw);
-        PrintWriter pw = new PrintWriter(bw)) {
-
-            for (Product p : prod) {
-                if (p != null) {
-                    pw.println(p.getProdID() + "," +
-                                p.getProdName() + "," +
-                                String.format("%.2f",p.getPrice()) + "," +
-                                p.getTotalQty() + "," +
-                                p.getStaffQty()[0] + "," +
-                                p.getStaffQty()[1] + "," +
-                                p.getStaffQty()[2] + "," +
-                                p.getStaffQty()[3]);
-                }
-            }
-        }catch (Exception e) {
-            if(e instanceof IOException){
-                JOptionPane.showMessageDialog(null, "Error writing to file.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-            else{
-                JOptionPane.showMessageDialog(null, "An unexpected error occurred. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
-    public void readStaffProduct(){
-        try (BufferedReader br = new BufferedReader(new FileReader("StaffProduct.txt"))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
-                for (int i = 4; i < parts.length; i++) {
-                    searchProduct(parts[0]).getStaffQty()[i-4] = Integer.parseInt(parts[i]);
-                }
-            }
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error reading from file.", "Error", JOptionPane.ERROR_MESSAGE);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "An unexpected error occurred. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
     public void writeToFile(){
         try (FileWriter fw = new FileWriter("StockRequest.csv");
         BufferedWriter bw = new BufferedWriter(fw);
@@ -189,7 +121,7 @@ public class SRMenu{
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(",");
                 if (fields.length == 12) {
-                    if (searchProduct(fields[1])==null) {
+                    if (searchProduct(fields[2])==null) {
                         JOptionPane.showMessageDialog(null, "Product ID for "+fields[0]+" not found.", "Warning", JOptionPane.WARNING_MESSAGE);
                     }
                     StockRequest sr = new StockRequest(fields[0], fields[1], searchProduct(fields[2]), Integer.parseInt(fields[3]), Integer.parseInt(fields[4]), fields[5], Integer.parseInt(fields[6]), Integer.parseInt(fields[7]), Integer.parseInt(fields[8]), Integer.parseInt(fields[9]), Integer.parseInt(fields[10]), Integer.parseInt(fields[11]));
@@ -247,20 +179,9 @@ public class SRMenu{
                 JOptionPane.showMessageDialog(null, "Invalid size.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            if(searchProduct(prodID).getStaffQty()[searchProduct(prodID).getSizeIndex(size)]>=qty){
-                stockRequest.add(new stockRequest(searchProduct(prodID),qty,size));
-                JOptionPane.showMessageDialog(null, "Record added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
-            }
-            else if(searchProduct(prodID).getStaffQty()[searchProduct(prodID).getSizeIndex(size)]<qty){
-                JOptionPane.showMessageDialog(null, "Quantity exceeds that in stock.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            else{
-                JOptionPane.showMessageDialog(null, "An unexpected error occurred. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+            SRList.add(new StockRequest(searchProduct(prodID),qty,size));
+            JOptionPane.showMessageDialog(null, "Record added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
             writeToFile();
-            writeToProd();
         }
         catch(Exception e){
             if(e instanceof NullPointerException){
@@ -274,14 +195,14 @@ public class SRMenu{
             }
         }
     }
-    public void modifyStockOut(){
+    public void modifyStockRequest(){
         if(!(readFromFile())) return;
         try{
-            String stockOutID=JOptionPane.showInputDialog("Enter Stock Out ID: ");
-            if(searchSO(stockOutID)==null) return;
+            String SRID=JOptionPane.showInputDialog("Enter Stock Request ID: ");
+            if(searchSR(SRID)==null) return;
             JOptionPane.showMessageDialog(null, "Record found.", "Success", JOptionPane.INFORMATION_MESSAGE);
-            JFrame frame = new JFrame("Modify Stock Out");
-            frame.setLayout(new GridLayout(8, 1));
+            JFrame frame = new JFrame("Modify Stock Request");
+            frame.setLayout(new GridLayout(7, 1));
             frame.setSize(500, 500);
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             Font buttonFont = new Font("Segoe UI", Font.PLAIN, 18);
@@ -289,14 +210,14 @@ public class SRMenu{
             // Add buttons for each attribute
             JButton prodIDButton = new JButton("Change Product ID, Size and Quantity");
             prodIDButton.setFont(buttonFont);
-            JButton sizeButton = new JButton("Change Size and Quantity");
-            sizeButton.setFont(buttonFont);
             JButton qtyButton = new JButton("Change Quantity");
             qtyButton.setFont(buttonFont);
-            JButton stockOutIDButton = new JButton("Change Stock Out ID");
-            stockOutIDButton.setFont(buttonFont);
-            stockOutIDButton.setForeground(Color.WHITE);
-            stockOutIDButton.setBackground(new Color(128, 0, 0)); // Maroon color
+            JButton osButton=new JButton("Change Outstanding Quantity");
+            osButton.setFont(buttonFont);
+            JButton SRIDButton = new JButton("Change Stock Request ID");
+            SRIDButton.setFont(buttonFont);
+            SRIDButton.setForeground(Color.WHITE);
+            SRIDButton.setBackground(new Color(128, 0, 0)); // Maroon color
             JLabel warningLabel = new JLabel("      Warning: Changing the Stock Out ID can be dangerous. DO SO WITH CAUTION!");
             warningLabel.setForeground(Color.RED);
             JButton dateButton = new JButton("Change Date");
@@ -307,42 +228,61 @@ public class SRMenu{
             // Add buttons to the frame
             frame.add(prodIDButton);
             frame.add(qtyButton);
-            frame.add(sizeButton);
+            frame.add(osButton);
             frame.add(dateButton);
             frame.add(timeButton);
-            frame.add(stockOutIDButton);
+            frame.add(SRIDButton);
             frame.add(warningLabel);
         
             // Add action listeners for the buttons
             prodIDButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    String newProdID = JOptionPane.showInputDialog(frame, "Enter new product ID:", searchSO(stockOutID).getProduct().getProdID());
-                    String newQty=JOptionPane.showInputDialog(frame, "Enter new quantity:", searchSO(stockOutID).getQty());
-                    String newSize=JOptionPane.showInputDialog(frame, "Enter new size:", searchSO(stockOutID).getSize());
-                    if (newProdID != null && !newProdID.trim().isEmpty()&& searchProduct(newProdID)!=null &&  searchSO(stockOutID).setPQS(searchProduct(newProdID), Integer.parseInt(newQty), newSize)) {
+                    String newProdID = JOptionPane.showInputDialog(frame, "Enter new product ID:", searchSR(SRID).getProduct().getProdID());
+                    String newQty=JOptionPane.showInputDialog(frame, "Enter new quantity:", searchSR(SRID).getQty());
+                    String newSize=JOptionPane.showInputDialog(frame, "Enter new size:", searchSR(SRID).getSize());
+                    if (newProdID != null && !newProdID.trim().isEmpty()&& searchProduct(newProdID)!=null) {
+                        searchSR(SRID).setPQS(searchProduct(newProdID), Integer.parseInt(newQty), newSize);
                         JOptionPane.showMessageDialog(frame, "Changes made successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         writeToFile();
-                        writeToProd();
-                        writeToStaffProd();
                     }
                 }
             });
         
+            osButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String newOutstandingStr = JOptionPane.showInputDialog(frame, "Enter new outstanding quantity:", searchSR(SRID).getOutstanding());
+                    try {
+                        if (newOutstandingStr != null && !newOutstandingStr.trim().isEmpty() && Integer.parseInt(newOutstandingStr)>=0) {
+                            searchSR(SRID).setOutstanding(Integer.parseInt(newOutstandingStr));
+                            JOptionPane.showMessageDialog(frame, "Outstanding quantity updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                            writeToFile();
+                        }
+                        else if(Integer.parseInt(newOutstandingStr)<0){
+                            JOptionPane.showMessageDialog(null, "Outstanding quantity must be more than or equal to 0!", "Warning", JOptionPane.WARNING_MESSAGE);
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(frame, "An unexpected error occurred. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(frame, "Invalid quantity!", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            });
         
             qtyButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    String newQtyStr = JOptionPane.showInputDialog(frame, "Enter new quantity:", searchSO(stockOutID).getQty());
+                    String newQtyStr = JOptionPane.showInputDialog(frame, "Enter new quantity:", searchSR(SRID).getQty());
                     try {
-                        if (newQtyStr != null && !newQtyStr.trim().isEmpty() && searchSO(stockOutID).setQty(Integer.parseInt(newQtyStr))) {
+                        if (newQtyStr != null && !newQtyStr.trim().isEmpty() && Integer.parseInt(newQtyStr)>0) {
+                            searchSR(SRID).setQty(Integer.parseInt(newQtyStr));
                             JOptionPane.showMessageDialog(frame, "Quantity updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                             writeToFile();
-                            writeToStaffProd();
-                            writeToProd();
                         }
-                        else if(searchProduct(searchSO(stockOutID).getProduct().getProdID()).getStaffQty()[searchProduct(searchSO(stockOutID).getProduct().getProdID()).getSizeIndex(searchSO(stockOutID).getSize())]<Integer.parseInt(newQtyStr)){
-                            JOptionPane.showMessageDialog(null, "Stocked Out quantity exceeds that in stock!.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        else if(Integer.parseInt(newQtyStr)<=0){
+                            JOptionPane.showMessageDialog(null, "Stock Request Quantity must be more than 0!", "Warning", JOptionPane.WARNING_MESSAGE);
                         }
                         else{
                             JOptionPane.showMessageDialog(frame, "An unexpected error occurred. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -356,11 +296,11 @@ public class SRMenu{
             dateButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    String newDate = JOptionPane.showInputDialog(frame, "Enter new date (DD-MM-YYY):", searchSO(stockOutID).getDate().getDate());
+                    String newDate = JOptionPane.showInputDialog(frame, "Enter new date (DD-MM-YYY):", searchSR(SRID).getDate().getDate());
                     if (newDate != null && !newDate.trim().isEmpty() && newDate.matches("\\d{2}-\\d{2}-\\d{4}")) {
                         try {
                             String[] dateParts = newDate.split("-");
-                            searchSO(stockOutID).getDate().changeDate(Integer.parseInt(dateParts[0]), Integer.parseInt(dateParts[1]), Integer.parseInt(dateParts[2]));
+                            searchSR(SRID).getDate().changeDate(Integer.parseInt(dateParts[0]), Integer.parseInt(dateParts[1]), Integer.parseInt(dateParts[2]));
                             JOptionPane.showMessageDialog(frame, "Date updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                             writeToFile();
                         } catch (Exception ex) {
@@ -381,14 +321,28 @@ public class SRMenu{
                 }
             });
 
+            SRIDButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String newSRID = JOptionPane.showInputDialog(frame, "Enter new Stock Request ID:", searchSR(SRID).getSRID());
+                    if (newSRID != null && !newSRID.trim().isEmpty() && searchSR(SRID).changeSRID(newSRID)) {
+                        JOptionPane.showMessageDialog(frame, "Stock Request ID updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                        writeToFile();
+                    }
+                    else if(newSRID==null || newSRID.trim().isEmpty()){
+                        JOptionPane.showMessageDialog(frame, "Record not updated. User entered no input or cancelled.", "Operation stopped.", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                }
+            });
+
             timeButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    String newTime = JOptionPane.showInputDialog(frame, "Enter new time (HH:MM:SS):", searchSO(stockOutID).getDate().getTime());
+                    String newTime = JOptionPane.showInputDialog(frame, "Enter new time (HH:MM:SS):", searchSR(SRID).getDate().getTime());
                     if (newTime != null && !newTime.trim().isEmpty() && newTime.matches("\\d{2}:\\d{2}:\\d{4}")) {
                         try {
                             String[] timeParts = newTime.split(":");
-                            searchSO(stockOutID).getDate().changeTime(Integer.parseInt(timeParts[0]), Integer.parseInt(timeParts[1]), Integer.parseInt(timeParts[2]));
+                            searchSR(SRID).getDate().changeTime(Integer.parseInt(timeParts[0]), Integer.parseInt(timeParts[1]), Integer.parseInt(timeParts[2]));
                             JOptionPane.showMessageDialog(frame, "Time updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                             writeToFile();
                         } catch (Exception ex) {
@@ -423,18 +377,18 @@ public class SRMenu{
             }
         }
     }
-    public void displayStockOut(){
+    public void displayStockRequest(){
         try{
-            String stockOutID=JOptionPane.showInputDialog("Enter stockRequest ID: ");
-            if(searchSO(stockOutID)==null) return;
-            stockRequest stockRequest = searchSO(stockOutID);
+            String SRID=JOptionPane.showInputDialog("Enter Stock Request ID: ");
+            if(searchSR(SRID)==null) return;
+            StockRequest SR = searchSR(SRID);
             String[][] data = {
-                {"stockRequest ID:", stockRequest.getSOID()},
-                {"Product ID:", stockRequest.getProduct().getProdID()},
-                {"Quantity:", String.valueOf(stockRequest.getQty())},
-                {"Size:", stockRequest.getSize()},
-                {"Date:", stockRequest.getDate().getDMY()},
-                {"Time:", stockRequest.getDate().getTime()}
+                {"Stock Request ID:", SR.getSRID()},
+                {"Product ID:", SR.getProduct().getProdID()},
+                {"Quantity:", String.valueOf(SR.getQty())},
+                {"Size:", SR.getSize()},
+                {"Date:", SR.getDate().getDMY()},
+                {"Time:", SR.getDate().getTime()}
             };
             String[] columnNames = {"Attribute", "Value"};
             JTable table = new JTable(data,columnNames);
@@ -465,15 +419,18 @@ public class SRMenu{
             }
         }
     }
-    public void deleteStockOut(){
+    public void deleteStockRequest(){
         try{
-            String stockOutID=JOptionPane.showInputDialog("Enter stockRequest ID: ");
-            if(searchSO(stockOutID)==null) return;
+            String SRID=JOptionPane.showInputDialog("Enter Stock Request ID: ");
+            if(searchSR(SRID)==null) return;
             int choice=JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?", "Warning", JOptionPane.YES_NO_OPTION);
             if(choice==JOptionPane.YES_OPTION){
-                stockRequest.remove(searchSO(stockOutID));
+                SRList.remove(searchSR(SRID));
                 JOptionPane.showMessageDialog(null, "Record deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                 writeToFile();
+            }
+            else if(choice==JOptionPane.NO_OPTION){
+                JOptionPane.showMessageDialog(null, "Record not deleted.", "Operation stopped.", JOptionPane.INFORMATION_MESSAGE);
             }
         }
         catch(Exception e){
@@ -485,8 +442,5 @@ public class SRMenu{
             }
         }
     }
-    public static void main(String[] args){
-        new StockOutMenu();
-    }   
 }
 
