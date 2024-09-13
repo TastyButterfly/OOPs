@@ -29,7 +29,7 @@ public class StockOut extends Stock{
         stockOutIDSet.add(stockOutID);
         setOrder(order);
     }
-    public StockOut(Order order, Product product, int qty, String size){
+    public StockOut(Product product, Order order, int qty, String size){
         while(stockOutIDSet.contains(String.format("%s%04d","SO",++count))){
             if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
         }//ENSURE NO DUPLICATE IDs
@@ -37,6 +37,16 @@ public class StockOut extends Stock{
         stockOutIDSet.add(stockOutID);
         setPQS(product, qty, size);
         setOrder(order);
+    }
+    public StockOut(String stockOutID, Order order, Product product, int qty, String size, int d, int m, int y, int h, int min, int s){//FOR USE IN LOADING FROM FILE, DO NOT USE FOR NEW RECORDS
+        stockOutIDSet.add(stockOutID);
+        this.stockOutID=stockOutID;
+        this.product=product;
+        this.order=order;
+        this.qty=qty;
+        this.size=size;
+        date.changeDateTime(d, m, y, h, min, s);
+        count++;
     }
     //Constructors
     public void changeSOID(String stockOutID){

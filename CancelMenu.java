@@ -34,7 +34,6 @@ public class CancelMenu {
         ofr=new OrderFileReader();
         order=ofr.getAllOrders();
         if(!readFromFile()) return;
-        System.out.println(searchProduct("C01-1023").getStaffQty()[0]);
         panel.setLayout(new GridLayout(5,1));
         panel.add(add);
         panel.add(modify);
@@ -291,9 +290,27 @@ public class CancelMenu {
                 JOptionPane.showMessageDialog(null, "Invalid size.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            cancel.add(new Cancellation(searchProduct(prodID), qty,searchOrder(orderID),size));
-            cancel.get(index).setStatus(status);
-            JOptionPane.showMessageDialog(null, "Record added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            System.out.println(validateProduct(searchProduct(prodID),searchOrder(orderID)));
+            if(validateProduct(searchProduct(prodID),searchOrder(orderID))==-1){
+                return;
+            }
+            else if(searchOrder(orderID).getSizes().get(validateProduct(searchProduct(prodID),searchOrder(orderID))).equals(size) && searchOrder(orderID).getQty().get(validateProduct(searchProduct(prodID),searchOrder(orderID)))>=qty){
+                cancel.add(new Cancellation(status, searchProduct(prodID), qty,searchOrder(orderID),size));
+                index++;
+                JOptionPane.showMessageDialog(null, "Record added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            }
+            else if(!searchOrder(orderID).getSizes().get(validateProduct(searchProduct(prodID),searchOrder(orderID))).equals(size)){
+                JOptionPane.showMessageDialog(null, "Size does not match size in order.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            else if(searchOrder(orderID).getQty().get(validateProduct(searchProduct(prodID),searchOrder(orderID)))<qty){
+                JOptionPane.showMessageDialog(null, "Quantity exceeds quantity in order.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            else{
+                JOptionPane.showMessageDialog(null, "An unexpected error occurred. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             writeToFile();
             writeToProd();
         }
@@ -359,9 +376,23 @@ public class CancelMenu {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     String newStatus = JOptionPane.showInputDialog(frame, "Enter new status:", searchCancel(cancelID).getStatus());
-                    if (newStatus != null && !newStatus.trim().isEmpty() && searchCancel(cancelID).setStatus(newStatus)) {
+                    if(searchCancel(cancelID).getStatus().equals(newStatus)){
+                        JOptionPane.showMessageDialog(frame, "Status unchanged.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    else if(searchCancel(cancelID).getStatus().equals("Approved") && !(newStatus.equals("Approved"))){
+                        JOptionPane.showMessageDialog(frame, "Cancellation has been approved. Status cannot be changed.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    else if(searchCancel(cancelID).getStatus().equals("Rejected") && !(newStatus.equals("Rejected"))){
+                        JOptionPane.showMessageDialog(frame, "Cancellation has been rejected. Status cannot be changed.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    else if (newStatus != null && !newStatus.trim().isEmpty() && searchCancel(cancelID).setStatus(newStatus)) {
                         JOptionPane.showMessageDialog(frame, "Status updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         writeToFile();
+                        writeToProd();
+                        writeToStaffProd();
                     }
                 }
             });
@@ -372,7 +403,7 @@ public class CancelMenu {
                     String newProdID = JOptionPane.showInputDialog(frame, "Enter new product ID:", searchCancel(cancelID).getProduct().getProdID());
                     String newQty=JOptionPane.showInputDialog(frame, "Enter new quantity:", searchCancel(cancelID).getQty());
                     String newSize=JOptionPane.showInputDialog(frame, "Enter new size:", searchCancel(cancelID).getSize());
-                    if (newProdID != null && !newProdID.trim().isEmpty()&& searchProduct(newProdID)!=null &&  searchCancel(cancelID).setPQS(searchProduct(newProdID), Integer.parseInt(newQty), newSize)) {
+                    if (newProdID != null && !newProdID.trim().isEmpty()&& searchProduct(newProdID)!=null &&  searchCancel(cancelID).setPQS(searchCancel(cancelID).getStatus(),searchProduct(newProdID), Integer.parseInt(newQty), newSize)) {
                         JOptionPane.showMessageDialog(frame, "Changes made successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         writeToFile();
                         writeToProd();
@@ -398,12 +429,26 @@ public class CancelMenu {
                 public void actionPerformed(ActionEvent e) {
                     String newQtyStr = JOptionPane.showInputDialog(frame, "Enter new quantity:", searchCancel(cancelID).getQty());
                     try {
-                        if (newQtyStr != null && !newQtyStr.trim().isEmpty() && searchCancel(cancelID).setQty(Integer.parseInt(newQtyStr))) {
+                        int i;
+                        for(i=0;i<searchCancel(cancelID).getOrder().getProdList().size();i++){
+                            if(searchCancel(cancelID).getOrder().getProdList().get(i).getProdID().equals(searchCancel(cancelID).getProduct().getProdID())) break;
+                            else if(i==searchCancel(cancelID).getOrder().getProdList().size()-1){
+                                JOptionPane.showMessageDialog(null, "Product does not match Order.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+                        }
+                        if (newQtyStr != null && !newQtyStr.trim().isEmpty() && searchCancel(cancelID).setQty(searchCancel(cancelID).getStatus(),Integer.parseInt(newQtyStr)) && searchCancel(cancelID).getOrder().getQty().get(i)>=Integer.parseInt(newQtyStr)) {
                             JOptionPane.showMessageDialog(frame, "Quantity updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                             writeToFile();
                             writeToStaffProd();
                             writeToProd();
-                        } 
+                        }
+                        else if(searchCancel(cancelID).getOrder().getQty().get(i)<Integer.parseInt(newQtyStr)){
+                            JOptionPane.showMessageDialog(null, "Cancelled quantity exceeds order!.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(frame, "An unexpected error occurred. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
                     }catch (NumberFormatException ex) {
                         JOptionPane.showMessageDialog(frame, "Invalid quantity!", "Error", JOptionPane.ERROR_MESSAGE);
                     }
@@ -534,6 +579,9 @@ public class CancelMenu {
                 JOptionPane.showMessageDialog(null, "Record deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                 writeToFile();
             }
+            else{
+                JOptionPane.showMessageDialog(null, "Record not deleted.", "Operation stopped.", JOptionPane.INFORMATION_MESSAGE);
+            }
         }
         catch(Exception e){
             if(e instanceof NullPointerException){
@@ -543,6 +591,14 @@ public class CancelMenu {
                 JOptionPane.showMessageDialog(null, "An unexpected error occurred. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
+    }
+    public int validateProduct(Product product , Order order){
+        int index;
+            for(index=0;index<order.getProdList().size();index++){
+                if(order.getProdList().get(index).getProdID().equals(product.getProdID())) return index;
+            }
+            JOptionPane.showMessageDialog(null, "Product does not match Order.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);
+            return -1;
     }
     public static void main(String[] args){
         new CancelMenu();

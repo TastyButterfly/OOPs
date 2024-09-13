@@ -1,26 +1,20 @@
 import java.util.List;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
-
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 
-public class CancelMenu1{
-    private static List<Cancellation> cancel=new ArrayList<>();
+public class StockOutMenu {
+    private static List<StockOut> stockOut=new ArrayList<>();
     private static List<Product> prod;
-    private static List<Product> staffProd;
     private static List<Order> order;
     private static int index=0;
     private static OrderFileReader ofr;
@@ -28,15 +22,15 @@ public class CancelMenu1{
     private static MyFrame mainFrame;
     private static ProductDatabase pd;
     JPanel panel=new JPanel();
-    JButton add=new JButton("Add Cancellation");
-    JButton modify=new JButton("Modify Cancellation");
+    JButton add=new JButton("Add Stock Out");
+    JButton modify=new JButton("Modify Stock Out");
     JButton back=new JButton("Back");
-    JButton display=new JButton("Display Cancellation");
-    JButton delete=new JButton("Delete Cancellation");
-    public CancelMenu1(){
+    JButton display=new JButton("Display Stock Out");
+    JButton delete=new JButton("Delete Stock Out");
+    public StockOutMenu(){
         pd=new ProductDatabase();
         prod=new ArrayList<Product>(pd.getProducts().values());
-        staffProd=new ArrayList<Product>(pd.getStaffProducts().values());
+        readStaffProduct();
         ofr=new OrderFileReader();
         order=ofr.getAllOrders();
         if(!readFromFile()) return;
@@ -53,25 +47,25 @@ public class CancelMenu1{
         add.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                addCancellation();
+                addStockOut();
             }
         });
         modify.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                modifyCancellation();
+                modifyStockOut();
             }
         });
         display.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                displayCancellation();
+                displayStockOut();
             }
         });
         delete.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                deleteCancellation();
+                deleteStockOut();
             }
         });
         back.addActionListener(new ActionListener() {
@@ -140,28 +134,42 @@ public class CancelMenu1{
             }
         }
     }
+    public void readStaffProduct(){
+        try (BufferedReader br = new BufferedReader(new FileReader("StaffProduct.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                for (int i = 4; i < parts.length; i++) {
+                    searchProduct(parts[0]).getStaffQty()[i-4] = Integer.parseInt(parts[i]);
+                }
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "Error reading from file.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "An unexpected error occurred. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
     public void writeToFile(){
-        try (FileWriter fw = new FileWriter("Cancellation.csv");
+        try (FileWriter fw = new FileWriter("StockOut.csv");
         BufferedWriter bw = new BufferedWriter(fw);
         PrintWriter pw = new PrintWriter(bw)) {
 
        // Optionally, write the header line if needed
-       pw.println("Cancellation ID,Order ID,Status,Product ID,Quantity,Size,Day,Month,Year,Hour,Minute,Second");
+       pw.println("Stock Out ID,Order ID,Product ID,Quantity,Size,Day,Month,Year,Hour,Minute,Second");
 
-       for (Cancellation c : cancel) {
-           if (c != null) {
-               pw.println(c.getCancelID() + "," +
-                           c.getOrder().getOrderID() + "," +
-                           c.getStatus() + "," +
-                           c.getProduct().getProdID() + "," +
-                           c.getQty() + "," +
-                           c.getSize() + "," +
-                           c.getDate().getDay() + "," +
-                           c.getDate().getMonthValue() + "," +
-                           c.getDate().getYear() + "," +
-                           c.getDate().getHour() + "," +
-                           c.getDate().getMinute() + "," +
-                           c.getDate().getSecond());
+       for (StockOut so: stockOut) {
+           if (so != null) {
+               pw.println(so.getSOID() + "," +
+                           so.getOrder().getOrderID() + "," +
+                           so.getProduct().getProdID() + "," +
+                           so.getQty() + "," +
+                           so.getSize() + "," +
+                           so.getDate().getDay() + "," +
+                           so.getDate().getMonthValue() + "," +
+                           so.getDate().getYear() + "," +
+                           so.getDate().getHour() + "," +
+                           so.getDate().getMinute() + "," +
+                           so.getDate().getSecond());
            }
        }
     }catch (Exception e) {
@@ -174,37 +182,22 @@ public class CancelMenu1{
         }
     }
     public boolean readFromFile(){
-        Path path = Paths.get("Cancellation.csv");
+        Path path = Paths.get("StockOut.csv");
         try (BufferedReader br = Files.newBufferedReader(path)) {
             String line;
-            cancel.clear(); // Clear the existing list to avoid duplicates
+            stockOut.clear(); // Clear the existing list to avoid duplicates
 
             // Skip the header line if present
             br.readLine();
 
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(",");
-                if (fields.length == 12) {
-                    String cancelID = fields[0];
-                    String orderID = fields[1];
-                    String status = fields[2];
-                    String prodID = fields[3];
-                    int qty = Integer.parseInt(fields[4]);
-                    String size = fields[5];
-                    int day = Integer.parseInt(fields[6]);
-                    int month = Integer.parseInt(fields[7]);
-                    int year = Integer.parseInt(fields[8]);
-                    int hour = Integer.parseInt(fields[9]);
-                    int minute = Integer.parseInt(fields[10]);
-                    int second = Integer.parseInt(fields[11]);
-
-                    Product product = searchProduct(prodID);
-                    Order order = searchOrder(orderID);
-                    if (product == null && order == null) {
-                        JOptionPane.showMessageDialog(null, "Product ID or Order ID for "+cancelID+" not found.", "Warning", JOptionPane.WARNING_MESSAGE);
+                if (fields.length == 11) {
+                    if (searchProduct(fields[2])==null || searchOrder(fields[1])==null) {
+                        JOptionPane.showMessageDialog(null, "Product ID or Order ID for "+fields[0]+" not found.", "Warning", JOptionPane.WARNING_MESSAGE);
                     }
-                    Cancellation cancellation = new Cancellation(cancelID, status,qty,day,month,year,hour,minute,second,size,product,order);
-                    cancel.add(cancellation);
+                    StockOut so = new StockOut(fields[0], searchOrder(fields[1]), searchProduct(fields[2]), Integer.parseInt(fields[3]), fields[4], Integer.parseInt(fields[5]), Integer.parseInt(fields[6]), Integer.parseInt(fields[7]), Integer.parseInt(fields[8]), Integer.parseInt(fields[9]), Integer.parseInt(fields[10]));
+                    stockOut.add(so);
                     index++;
                 }
             }
@@ -244,14 +237,14 @@ public class CancelMenu1{
             return null;
         }
     }
-    public Cancellation searchCancel(String cancelID){
+    public StockOut searchSO(String SOID){
         try{
-            for (Cancellation c : cancel) {
-                if (c.getCancelID().equals(cancelID)) {
-                    return c;
+            for (StockOut so : stockOut) {
+                if (so.getSOID().equals(SOID)) {
+                    return so;
                 }
             }
-            JOptionPane.showMessageDialog(null, "Cancellation ID not found!", "Warning", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, "StockOut ID not found!", "Warning", JOptionPane.WARNING_MESSAGE);
             return null;
         }
         catch(NullPointerException e){
@@ -259,13 +252,8 @@ public class CancelMenu1{
             return null;
         }
     }
-    public void addCancellation(){
+    public void addStockOut(){
         try{
-            String status=JOptionPane.showInputDialog("Enter Status: ");
-            if(!(status.equals("Pending")) && !(status.equals("Approved"))&&!(status.equals("Rejected"))){
-                JOptionPane.showMessageDialog(null, "Invalid Status.", "Warning", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
             String prodID=JOptionPane.showInputDialog("Enter Product ID: ");
             if(searchProduct(prodID)==null) return;
             String orderID=JOptionPane.showInputDialog("Enter Order ID: ");
@@ -281,9 +269,26 @@ public class CancelMenu1{
                 JOptionPane.showMessageDialog(null, "Invalid size.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            cancel.add(new Cancellation(searchProduct(prodID), qty,searchOrder(orderID),size));
-            cancel.get(index).setStatus(status);
-            JOptionPane.showMessageDialog(null, "Record added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            if(validateProduct(searchProduct(prodID),searchOrder(orderID))!=-1){
+                JOptionPane.showMessageDialog(null, "Product not found in order.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            else if(searchOrder(orderID).getSizes().get(validateProduct(searchProduct(prodID),searchOrder(orderID))).equals(size) && searchOrder(orderID).getQty().get(validateProduct(searchProduct(prodID),searchOrder(orderID)))>=qty){
+                stockOut.add(new StockOut(searchProduct(prodID),searchOrder(orderID),qty,size));
+                JOptionPane.showMessageDialog(null, "Record added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            }
+            else if(!searchOrder(orderID).getSizes().get(validateProduct(searchProduct(prodID),searchOrder(orderID))).equals(size)){
+                JOptionPane.showMessageDialog(null, "Size does not match size in order.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            else if(searchOrder(orderID).getQty().get(searchOrder(orderID).getProdList().indexOf(searchProduct(prodID)))<qty){
+                JOptionPane.showMessageDialog(null, "Quantity exceeds that in order.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            else{
+                JOptionPane.showMessageDialog(null, "An unexpected error occurred. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             writeToFile();
             writeToProd();
         }
@@ -299,21 +304,19 @@ public class CancelMenu1{
             }
         }
     }
-    public void modifyCancellation(){
+    public void modifyStockOut(){
         if(!(readFromFile())) return;
         try{
-            String cancelID=JOptionPane.showInputDialog("Enter Cancellation ID: ");
-            if(searchCancel(cancelID)==null) return;
+            String stockOutID=JOptionPane.showInputDialog("Enter Stock Out ID: ");
+            if(searchSO(stockOutID)==null) return;
             JOptionPane.showMessageDialog(null, "Record found.", "Success", JOptionPane.INFORMATION_MESSAGE);
-            JFrame frame = new JFrame("Modify Cancellation");
+            JFrame frame = new JFrame("Modify Stock Out");
             frame.setLayout(new GridLayout(9, 1));
             frame.setSize(500, 500);
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             Font buttonFont = new Font("Segoe UI", Font.PLAIN, 18);
 
             // Add buttons for each attribute
-            JButton statusButton = new JButton("Change Status");
-            statusButton.setFont(buttonFont);
             JButton prodIDButton = new JButton("Change Product ID, Size and Quantity");
             prodIDButton.setFont(buttonFont);
             JButton sizeButton = new JButton("Change Size and Quantity");
@@ -322,47 +325,35 @@ public class CancelMenu1{
             orderIDButton.setFont(buttonFont);
             JButton qtyButton = new JButton("Change Quantity");
             qtyButton.setFont(buttonFont);
-            JButton cancelIDButton = new JButton("Change Cancellation ID");
-            cancelIDButton.setFont(buttonFont);
-            cancelIDButton.setForeground(Color.WHITE);
-            cancelIDButton.setBackground(new Color(128, 0, 0)); // Maroon color
-            JLabel warningLabel = new JLabel("    Warning: Changing the Cancellation ID can be dangerous. DO SO WITH CAUTION!");
+            JButton stockOutIDButton = new JButton("Change Stock Out ID");
+            stockOutIDButton.setFont(buttonFont);
+            stockOutIDButton.setForeground(Color.WHITE);
+            stockOutIDButton.setBackground(new Color(128, 0, 0)); // Maroon color
+            JLabel warningLabel = new JLabel("      Warning: Changing the Stock Out ID can be dangerous. DO SO WITH CAUTION!");
             warningLabel.setForeground(Color.RED);
             JButton dateButton = new JButton("Change Date");
             dateButton.setFont(buttonFont);
             JButton timeButton = new JButton("Change Time");
             timeButton.setFont(buttonFont);
 
-
-            frame.add(statusButton);
+            // Add buttons to the frame
             frame.add(prodIDButton);
             frame.add(orderIDButton);
             frame.add(qtyButton);
             frame.add(sizeButton);
             frame.add(dateButton);
             frame.add(timeButton);
-            frame.add(cancelIDButton);
+            frame.add(stockOutIDButton);
             frame.add(warningLabel);
         
             // Add action listeners for the buttons
-            statusButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String newStatus = JOptionPane.showInputDialog(frame, "Enter new status:", searchCancel(cancelID).getStatus());
-                    if (newStatus != null && !newStatus.trim().isEmpty() && searchCancel(cancelID).setStatus(newStatus)) {
-                        JOptionPane.showMessageDialog(frame, "Status updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                        writeToFile();
-                    }
-                }
-            });
-        
             prodIDButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    String newProdID = JOptionPane.showInputDialog(frame, "Enter new product ID:", searchCancel(cancelID).getProduct().getProdID());
-                    String newQty=JOptionPane.showInputDialog(frame, "Enter new quantity:", searchCancel(cancelID).getQty());
-                    String newSize=JOptionPane.showInputDialog(frame, "Enter new size:", searchCancel(cancelID).getSize());
-                    if (newProdID != null && !newProdID.trim().isEmpty()&& searchProduct(newProdID)!=null &&  searchCancel(cancelID).setPQS(searchProduct(newProdID), Integer.parseInt(newQty), newSize)) {
+                    String newProdID = JOptionPane.showInputDialog(frame, "Enter new product ID:", searchSO(stockOutID).getProduct().getProdID());
+                    String newQty=JOptionPane.showInputDialog(frame, "Enter new quantity:", searchSO(stockOutID).getQty());
+                    String newSize=JOptionPane.showInputDialog(frame, "Enter new size:", searchSO(stockOutID).getSize());
+                    if (newProdID != null && !newProdID.trim().isEmpty()&& searchProduct(newProdID)!=null &&  searchSO(stockOutID).setPQS(searchProduct(newProdID), Integer.parseInt(newQty), newSize)) {
                         JOptionPane.showMessageDialog(frame, "Changes made successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         writeToFile();
                         writeToProd();
@@ -374,9 +365,9 @@ public class CancelMenu1{
             orderIDButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    String newOrderID = JOptionPane.showInputDialog(frame, "Enter new order ID:", searchCancel(cancelID).getOrder().getOrderID());
+                    String newOrderID = JOptionPane.showInputDialog(frame, "Enter new order ID:", searchSO(stockOutID).getOrder().getOrderID());
                     if (newOrderID != null && !newOrderID.trim().isEmpty() && searchOrder(newOrderID) != null) {
-                        searchCancel(cancelID).setOrder(searchOrder(newOrderID));
+                        searchSO(stockOutID).setOrder(searchOrder(newOrderID));
                         JOptionPane.showMessageDialog(frame, "Order ID updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         writeToFile();
                     }   
@@ -386,14 +377,28 @@ public class CancelMenu1{
             qtyButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    String newQtyStr = JOptionPane.showInputDialog(frame, "Enter new quantity:", searchCancel(cancelID).getQty());
+                    String newQtyStr = JOptionPane.showInputDialog(frame, "Enter new quantity:", searchstockOut(stockOutID).getQty());
                     try {
-                        if (newQtyStr != null && !newQtyStr.trim().isEmpty() && searchCancel(cancelID).setQty(Integer.parseInt(newQtyStr))) {
+                        int i;
+                        for(i=0;i<searchstockOut(stockOutID).getOrder().getProdList().size();i++){
+                            if(searchstockOut(stockOutID).getOrder().getProdList().get(i).getProdID().equals(searchstockOut(stockOutID).getProduct().getProdID())) break;
+                            else if(i==searchstockOut(stockOutID).getOrder().getProdList().size()-1){
+                                JOptionPane.showMessageDialog(null, "Product does not match Order.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+                        }
+                        if (newQtyStr != null && !newQtyStr.trim().isEmpty() && searchstockOut(stockOutID).setQty(searchstockOut(stockOutID).getStatus(),Integer.parseInt(newQtyStr)) && searchstockOut(stockOutID).getOrder().getQty().get(i)>=Integer.parseInt(newQtyStr)) {
                             JOptionPane.showMessageDialog(frame, "Quantity updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                             writeToFile();
                             writeToStaffProd();
                             writeToProd();
-                        } 
+                        }
+                        else if(searchstockOut(stockOutID).getOrder().getQty().get(i)<Integer.parseInt(newQtyStr)){
+                            JOptionPane.showMessageDialog(null, "Stocked Out quantity exceeds order!.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(frame, "An unexpected error occurred. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
                     }catch (NumberFormatException ex) {
                         JOptionPane.showMessageDialog(frame, "Invalid quantity!", "Error", JOptionPane.ERROR_MESSAGE);
                     }
@@ -403,11 +408,11 @@ public class CancelMenu1{
             dateButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    String newDate = JOptionPane.showInputDialog(frame, "Enter new date (DD-MM-YYY):", searchCancel(cancelID).getDate().getDate());
+                    String newDate = JOptionPane.showInputDialog(frame, "Enter new date (DD-MM-YYY):", searchstockOut(stockOutID).getDate().getDate());
                     if (newDate != null && !newDate.trim().isEmpty() && newDate.matches("\\d{2}-\\d{2}-\\d{4}")) {
                         try {
                             String[] dateParts = newDate.split("-");
-                            searchCancel(cancelID).getDate().changeDate(Integer.parseInt(dateParts[0]), Integer.parseInt(dateParts[1]), Integer.parseInt(dateParts[2]));
+                            searchstockOut(stockOutID).getDate().changeDate(Integer.parseInt(dateParts[0]), Integer.parseInt(dateParts[1]), Integer.parseInt(dateParts[2]));
                             JOptionPane.showMessageDialog(frame, "Date updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                             writeToFile();
                         } catch (Exception ex) {
@@ -431,11 +436,11 @@ public class CancelMenu1{
             timeButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    String newTime = JOptionPane.showInputDialog(frame, "Enter new time (HH:MM:SS):", searchCancel(cancelID).getDate().getTime());
+                    String newTime = JOptionPane.showInputDialog(frame, "Enter new time (HH:MM:SS):", searchstockOut(stockOutID).getDate().getTime());
                     if (newTime != null && !newTime.trim().isEmpty() && newTime.matches("\\d{2}:\\d{2}:\\d{4}")) {
                         try {
                             String[] timeParts = newTime.split(":");
-                            searchCancel(cancelID).getDate().changeTime(Integer.parseInt(timeParts[0]), Integer.parseInt(timeParts[1]), Integer.parseInt(timeParts[2]));
+                            searchstockOut(stockOutID).getDate().changeTime(Integer.parseInt(timeParts[0]), Integer.parseInt(timeParts[1]), Integer.parseInt(timeParts[2]));
                             JOptionPane.showMessageDialog(frame, "Time updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                             writeToFile();
                         } catch (Exception ex) {
@@ -470,20 +475,20 @@ public class CancelMenu1{
             }
         }
     }
-    public void displayCancellation(){
+    public void displayStockOut(){
         try{
-            String cancelID=JOptionPane.showInputDialog("Enter Cancellation ID: ");
-            if(searchCancel(cancelID)==null) return;
-            Cancellation cancellation = searchCancel(cancelID);
+            String stockOutID=JOptionPane.showInputDialog("Enter StockOut ID: ");
+            if(searchstockOut(stockOutID)==null) return;
+            StockOut StockOut = searchstockOut(stockOutID);
             String[][] data = {
-                {"Cancellation ID:", cancellation.getCancelID()},
-                {"Order ID:", cancellation.getOrder().getOrderID()},
-                {"Status:", cancellation.getStatus()},
-                {"Product ID:", cancellation.getProduct().getProdID()},
-                {"Quantity:", String.valueOf(cancellation.getQty())},
-                {"Size:", cancellation.getSize()},
-                {"Date:", cancellation.getDate().getDMY()},
-                {"Time:", cancellation.getDate().getTime()}
+                {"StockOut ID:", StockOut.getstockOutID()},
+                {"Order ID:", StockOut.getOrder().getOrderID()},
+                {"Status:", StockOut.getStatus()},
+                {"Product ID:", StockOut.getProduct().getProdID()},
+                {"Quantity:", String.valueOf(StockOut.getQty())},
+                {"Size:", StockOut.getSize()},
+                {"Date:", StockOut.getDate().getDMY()},
+                {"Time:", StockOut.getDate().getTime()}
             };
             String[] columnNames = {"Attribute", "Value"};
             JTable table = new JTable(data,columnNames);
@@ -514,13 +519,13 @@ public class CancelMenu1{
             }
         }
     }
-    public void deleteCancellation(){
+    public void deleteStockOut(){
         try{
-            String cancelID=JOptionPane.showInputDialog("Enter Cancellation ID: ");
-            if(searchCancel(cancelID)==null) return;
+            String stockOutID=JOptionPane.showInputDialog("Enter StockOut ID: ");
+            if(searchstockOut(stockOutID)==null) return;
             int choice=JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?", "Warning", JOptionPane.YES_NO_OPTION);
             if(choice==JOptionPane.YES_OPTION){
-                cancel.remove(searchCancel(cancelID));
+                stockOut.remove(searchstockOut(stockOutID));
                 JOptionPane.showMessageDialog(null, "Record deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                 writeToFile();
             }
@@ -534,8 +539,16 @@ public class CancelMenu1{
             }
         }
     }
+    public int validateProduct(Product product , Order order){
+        int index;
+            for(index=0;index<order.getProdList().size();index++){
+                if(order.getProdList().get(index).getProdID().equals(product.getProdID())) return index;
+            }
+            JOptionPane.showMessageDialog(null, "Product does not match Order.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);
+            return -1;
+    }
     public static void main(String[] args){
-        new CancelMenu();
+        new StockOutMenu();
     }   
 }
 

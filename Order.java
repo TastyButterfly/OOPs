@@ -20,8 +20,7 @@ public class Order {
     private static final DecimalFormat df = new DecimalFormat("0.00"); // Decimal format for 2 decimal places
 
     public Order() {
-        this.orderID="ORD0001";
-        //this.orderID = generateOrderID();
+        this.orderID = generateOrderID();
         this.dateOrdered = new CDate(); // Use CDate
         this.prodList = new ArrayList<>();
         this.sizes = new ArrayList<>(); // Initialize sizes list
@@ -102,8 +101,9 @@ public class Order {
     
             for (int i = 0; i < prodList.size(); i++) {
                 Product product = prodList.get(i);
+                String size = sizes.get(i); 
                 int quantity = qty.get(i);
-                writer.write("ProductID: " + product.getProdID() + " Quantity: " + quantity + "\n");
+                writer.write("ProductID: " + product.getProdID() + " Size: " + size + " Quantity: " + quantity + "\n"); 
             }
     
             writer.write("Grand Total: RM" + new DecimalFormat("#.00").format(payAmt) + "\n");

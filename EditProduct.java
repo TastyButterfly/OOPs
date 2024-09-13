@@ -1,6 +1,12 @@
 public class EditProduct {
     private ProductDatabase productDatabase;
 
+    // No-argument constructor
+    public EditProduct() {
+        // Initialize productDatabase with a default instance
+        this.productDatabase = new ProductDatabase();
+    }
+
     public EditProduct(ProductDatabase productDatabase) {
         this.productDatabase = productDatabase;
     }

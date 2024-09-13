@@ -30,14 +30,15 @@ public class StockIn extends Stock{
         stockInIDSet.add(stockInID);
         setPQS(product, qty, size);
     }
-    public StockIn(StockRequest SR, Product product, int qty, String size){
-        while(stockInIDSet.contains(String.format("%s%04d","SI",++count))){
-            if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
-        }//ENSURE NO DUPLICATE IDs
-        stockInID=String.format("%s%04d","SI",count);
+    public StockIn(String stockInID, StockRequest SR, Product product, int qty, String size, int d, int m, int y, int h, int min, int s){//FOR USE IN LOADING FROM FILE, DO NOT USE FOR NEW RECORDS
         stockInIDSet.add(stockInID);
+        this.stockInID=stockInID;
+        this.product=product;
+        this.qty=qty;
+        this.size=size;
         setSR(SR);
-        setPQS(product, qty,size);
+        date.changeDateTime(d, m, y, h, min, s);
+        count++;
     }
     //Constructors
     public void changeSIID(String stockInID){
@@ -74,6 +75,7 @@ public class StockIn extends Stock{
             SR.setOutstanding((SR.getOutstanding()-qty));
             if(SR.getOutstanding()<=0){
                 SR.setStatus("Fulfilled");
+                SR.setOutstanding(0);
             }
             else{
                 SR.setStatus("Partially Fulfilled");
@@ -95,6 +97,7 @@ public class StockIn extends Stock{
             SR.setOutstanding((SR.getOutstanding()-qty));
             if(SR.getOutstanding()<=0){
                 SR.setStatus("Fulfilled");
+                SR.setOutstanding(0);
             }
             else{
                 SR.setStatus("Partially Fulfilled");
@@ -117,6 +120,7 @@ public class StockIn extends Stock{
                 SR.setOutstanding((SR.getOutstanding()-qty));
                 if(SR.getOutstanding()<=0){
                     SR.setStatus("Fulfilled");
+                    SR.setOutstanding(0);
                 }
                 else{
                     SR.setStatus("Partially Fulfilled");

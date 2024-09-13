@@ -1,6 +1,7 @@
 import java.io.*;
 import java.util.*;
 
+
 public class Product {
     private String prodID;
     private String prodName;
@@ -8,6 +9,17 @@ public class Product {
     private int totalQty;
     private int[] qtySizes; // Array to hold quantities for S, M, L, XL
     private int[] staffQty;
+
+    // No-argument constructor
+    public Product() {
+        // Initialize fields with default values
+        this.prodID = ""; // Default empty string for prodID
+        this.prodName = ""; // Default empty string for prodName
+        this.price = 0.0; // Default price
+        this.totalQty = 0; // Default total quantity
+        this.qtySizes = new int[4]; // Array to hold quantities for S, M, L, XL, default to an array of 4 integers
+        this.staffQty = new int[4];
+    }
 
     // Constructor for products with sizes
     public Product(String prodID, String prodName, double price, int totalQty, int qtyS, int qtyM, int qtyL, int qtyXL) {
@@ -69,28 +81,6 @@ public class Product {
         }
     }
 
-    public boolean setStaffQty(boolean stockIn, String size, int qty){
-        if (getSizeIndex(size) != -1 && qty>=0 && stockIn) {
-            staffQty[getSizeIndex(size)]+=qty;
-            return true;
-        } else if(getSizeIndex(size) != -1 && qty>=0 && !(stockIn)){
-            if(qty>staffQty[getSizeIndex(size)]){
-                System.err.println("Error: Quantity exceeds available stock for size.");
-                return false;
-            }
-            staffQty[getSizeIndex(size)]-=qty;
-            return true;
-        }else {
-            if(getSizeIndex(size)==-1){
-                System.err.println("Error: Invalid size.");
-            }
-            else{
-                System.err.println("Error: Quantity must be 0 or more.");
-            }
-            return false; // Invalid size
-        }
-    }
-
     // Method to update the quantities of a product
     public boolean updateProductQuantities(String size, int quantity) {
         int sizeIndex = getSizeIndex(size);
@@ -124,6 +114,29 @@ public class Product {
                 return -1; // Invalid size
         }
     }
+
+    public boolean setStaffQty(boolean stockIn, String size, int qty){
+        if (getSizeIndex(size) != -1 && qty>=0 && stockIn) {
+            staffQty[getSizeIndex(size)]+=qty;
+            return true;
+        } else if(getSizeIndex(size) != -1 && qty>=0 && !(stockIn)){
+            if(qty>staffQty[getSizeIndex(size)]){
+                System.err.println("Error: Quantity exceeds available stock for size.");
+                return false;
+            }
+            staffQty[getSizeIndex(size)]-=qty;
+            return true;
+        }else {
+            if(getSizeIndex(size)==-1){
+                System.err.println("Error: Invalid size.");
+            }
+            else{
+                System.err.println("Error: Quantity must be 0 or more.");
+            }
+            return false; // Invalid size
+        }
+    }
+
     public int[] getStaffQty(){
         return staffQty;
     }

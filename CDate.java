@@ -10,7 +10,7 @@ public class CDate {
     public void changeDateTime(int d, int m, int y, int h, int min, int s){
         date=LocalDateTime.of(y,m,d,h,min,s);
     }
-    public void changeDate(int d, int m, int y){
+     public void changeDate(int d, int m, int y){
         date=LocalDateTime.of(y,m,d,date.getHour(),date.getMinute(),date.getSecond());
     }
     public void changeTime(int h, int m, int s){

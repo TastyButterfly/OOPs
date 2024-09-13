@@ -6,10 +6,13 @@ import javax.swing.plaf.basic.BasicButtonUI;
 
 public class Home extends JPanel implements ActionListener {
 
-    JButton dashboard = new JButton();
-    JButton stockIn = new JButton();
+    JButton editProduct = new JButton();
+    JButton cancelOrder = new JButton();
     JButton order = new JButton();
     JButton logistic = new JButton();
+    JButton stockIn = new JButton();
+    JButton stockOut = new JButton();
+    JButton stockRequest = new JButton();
     JButton report = new JButton();
 
     public Home() {
@@ -19,17 +22,23 @@ public class Home extends JPanel implements ActionListener {
         this.setLayout(new GridLayout(2, 2, 20, 20)); // 2x2 grid with gaps
 
         // Adjust button sizes and setup
-        configureButton(dashboard, "Dashboard", "dashboard_icon.png");
-        configureButton(stockIn, "Stock In", "instock_icon.png");
+        configureButton(editProduct, "Edit Product", "dashboard_icon.png");
+        configureButton(cancelOrder, "Order Cancellation", "order_icon.png");
         configureButton(order, "Order", "order_icon.png");
         configureButton(logistic, "Logistic", "logistic_icon.png");
+        configureButton(stockIn, "Stock In", "instock_icon.png");
+        configureButton(stockOut, "Stock Out", "instock_icon.png");
+        configureButton(stockRequest, "Stock Request", "instock_icon.png");
         configureButton(report, "Report", "reporting_icon.png");
 
         // Add buttons to the panel
-        this.add(dashboard);
-        this.add(stockIn);
+        this.add(editProduct);
+        this.add(cancelOrder);
         this.add(order);
         this.add(logistic);
+        this.add(stockIn);
+        this.add(stockOut);
+        this.add(stockRequest);
         this.add(report);
 
         setupListeners();
@@ -75,47 +84,56 @@ public class Home extends JPanel implements ActionListener {
     }
 
     private void setupListeners() {
-        dashboard.addActionListener(this);
-        stockIn.addActionListener(this);
+        editProduct.addActionListener(this);
+        cancelOrder.addActionListener(this);
         order.addActionListener(this);
         logistic.addActionListener(this);
+        stockIn.addActionListener(this);
+        stockOut.addActionListener(this);
+        stockRequest.addActionListener(this);
         report.addActionListener(this);
     }
 
-    @Override
-public void actionPerformed(ActionEvent e) {
-    if (e.getSource() == report) {
-        //MyFrame mainFrame = (MyFrame) SwingUtilities.getWindowAncestor(this);
-        //mainFrame.setContentPanel(new ReportPanel()); // Navigate to Report Panel
-        //mainFrame.revalidate(); // Refresh the frame to display the new content
-        //mainFrame.repaint(); // Repaint the frame to apply visual changes
-    }
-    if (e.getSource() == order) {
-        MyFrame mainFrame = (MyFrame) SwingUtilities.getWindowAncestor(this);
-        Product product1 = new Product("C01-1023-XL", "shirt1", "XL", 20.00);
-        Product product2 = new Product("C02-1023-L", "dress2", "L", 10.00);
-        Order order = new Order();
-        order.addProduct(product1, 2);
-        order.addProduct(product2, 1);
+        @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == report) {
+            MyFrame mainFrame = (MyFrame) SwingUtilities.getWindowAncestor(this);
+            mainFrame.setContentPanel(new ReportPanel()); // Navigate to Report Panel
+            mainFrame.revalidate(); // Refresh the frame to display the new content
+            mainFrame.repaint(); // Repaint the frame to apply visual changes
+        }
+        if (e.getSource() == order) {
+            MyFrame mainFrame = (MyFrame) SwingUtilities.getWindowAncestor(this);
+            mainFrame.setContentPanel(new OrderPanel()); // Navigate to PaymentPanel
+            mainFrame.revalidate(); // Refresh the frame to display the new content
+            mainFrame.repaint(); // Repaint the frame to apply visual changes
+        }
+        if (e.getSource() == editProduct) {
+            MyFrame mainFrame = (MyFrame) SwingUtilities.getWindowAncestor(this);
+            mainFrame.setContentPanel(new EditProductPanel()); // Navigate to EditProduct
+            mainFrame.revalidate(); // Refresh the frame to display the new content
+            mainFrame.repaint(); // Repaint the frame to apply visual changes
+        }
+        if (e.getSource() == logistic) {
+            MyFrame mainFrame = (MyFrame) SwingUtilities.getWindowAncestor(this);
+            mainFrame.setContentPanel(new PickUpAndDeliverySchedule()); // Navigate to Logistic Module
+            mainFrame.revalidate(); // Refresh the frame to display the new content
+            mainFrame.repaint(); // Repaint the frame to apply visual changes
+        }
+        if (e.getSource() == cancelOrder) {
+            new CancelMenu();
+        }
+        if (e.getSource() == stockIn) {
+            new StockInMenu();
+        }
+        if (e.getSource() == stockOut) {
+            new StockOutMenu();
+        }
+        if (e.getSource() == stockRequest) {
+            //ur code
+        }
 
-        mainFrame.setContentPanel(new PaymentPanel(order)); // Navigate to PaymentPanel
-        mainFrame.revalidate(); // Refresh the frame to display the new content
-        mainFrame.repaint(); // Repaint the frame to apply visual changes
     }
+
 
 }
-
-
-}
-
-
-
-
-
-
-
-
-
-
-
-

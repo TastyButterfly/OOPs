@@ -34,7 +34,7 @@ public class StockRequest extends Stock{
     }
     //Constructors
     public void setStatus(String status){
-        if(status.equals("Pending")||status.equals("Partially Fulfilled")||status.equals("Fulfilled")||status.equals("Rejected")){
+        if(status.equals("Pending")||status.equals("Partially Fulfilled")||status.equals("Fulfilled")){
             this.status=status;
             if(status.equals("Fulfilled")){
                 outstanding=0;
@@ -68,12 +68,7 @@ public class StockRequest extends Stock{
         }
     }
     public void setOutstanding(int outstanding){
-        if(outstanding<=0){
-            JOptionPane.showMessageDialog(null, "Outstanding Quantity must be 1 or more!", "Warning", JOptionPane.WARNING_MESSAGE);
-        }
-        else{
-            this.outstanding=outstanding;
-        }
+        this.outstanding=outstanding;
     }
     public void setPQS(Product product, int qty, String size){
         if(qty<=0){

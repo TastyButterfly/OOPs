@@ -1,22 +1,49 @@
 Order ID: ORD0001
-Date Ordered: 11-09-2024 16:58:47
-ProductID: C01-1023 Size: S Quantity: 2
-Grand Total: RM42.19
+Date Ordered: 11-09-2024 23:05:50
+ProductID: C02-1039 Size: S Quantity: 2
+Grand Total: RM105.79
 Payment Method: Cash
 Order Status: Paid
 --------------------------------------------------
 Order ID: ORD0002
-Date Ordered: 11-09-2024 17:15:00
-ProductID: C01-1120 Size: M Quantity: 5
-ProductID: C01-1023 Size: L Quantity: 2
-Grand Total: RM465.66
+Date Ordered: 12-09-2024 12:41:16
+ProductID: C03-0251 Size: S Quantity: 2
+Grand Total: RM169.39
 Payment Method: Touch 'n Go e-Wallet
 Order Status: Paid
 --------------------------------------------------
 Order ID: ORD0003
-Date Ordered: 11-09-2024 18:24:37
-ProductID: C02-1039 Size: L Quantity: 2
-Grand Total: RM105.79
+Date Ordered: 12-09-2024 13:10:14
+ProductID: C02-1039 Size: S Quantity: 1
+Grand Total: RM52.89
 Payment Method: Bank Transfer
+Order Status: Paid
+--------------------------------------------------
+Order ID: ORD0004
+Date Ordered: 12-09-2024 13:13:36
+ProductID: C02-1039 Size: M Quantity: 4
+Grand Total: RM211.58
+Payment Method: Touch 'n Go e-Wallet
+Order Status: Paid
+--------------------------------------------------
+Order ID: ORD0005
+Date Ordered: 12-09-2024 13:22:03
+ProductID: C01-1023 Size: M Quantity: 2
+Grand Total: RM42.19
+Payment Method: Cash
+Order Status: Paid
+--------------------------------------------------
+Order ID: ORD0006
+Date Ordered: 12-09-2024 13:50:03
+ProductID: C03-1062 Size: S Quantity: 2
+Grand Total: RM169.39
+Payment Method: Touch 'n Go e-Wallet
+Order Status: Paid
+--------------------------------------------------
+Order ID: ORD0007
+Date Ordered: 12-09-2024 13:50:59
+ProductID: C01-1023 Size: L Quantity: 1
+Grand Total: RM21.09
+Payment Method: Touch 'n Go e-Wallet
 Order Status: Paid
 --------------------------------------------------
