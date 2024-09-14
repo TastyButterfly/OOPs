@@ -13,7 +13,7 @@ import java.nio.file.Paths;
 import java.time.format.DateTimeParseException;
 
 public class StockOutMenu {
-    private static List<StockOut> stockOut=new ArrayList<>();
+    private static List<StockOut> stockOut;
     private static List<Product> prod;
     private static List<Product> staffProd;
     private static JFrame mainFrame;
@@ -25,6 +25,7 @@ public class StockOutMenu {
     JButton display=new JButton("Display Stock Out");
     JButton delete=new JButton("Delete Stock Out");
     public StockOutMenu(){
+        stockOut=new ArrayList<StockOut>();
         pd=new ProductDatabase();
         prod=new ArrayList<Product>(pd.getProducts().values());
         staffProd=new ArrayList<Product>(pd.getStaffProducts().values());

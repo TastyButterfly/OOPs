@@ -13,7 +13,7 @@ import java.nio.file.Paths;
 import java.time.format.DateTimeParseException;
 
 public class CancelMenu {
-    private static List<Cancellation> cancel=new ArrayList<>();
+    private static List<Cancellation> cancel;
     private static List<Product> prod;
     private static List<Product> staffProd;
     private static List<Order> order;
@@ -27,6 +27,7 @@ public class CancelMenu {
     JButton display=new JButton("Display Cancellation");
     JButton delete=new JButton("Delete Cancellation");
     public CancelMenu(){
+        cancel=new ArrayList<>();
         pd=new ProductDatabase();
         prod=new ArrayList<Product>(pd.getProducts().values());
         staffProd=new ArrayList<Product>(pd.getStaffProducts().values());

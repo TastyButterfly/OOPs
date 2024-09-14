@@ -14,11 +14,11 @@ import java.nio.file.Paths;
 import java.time.format.DateTimeParseException;
 
 public class StockInMenu {
-    private static List<StockIn> stockInList=new ArrayList<>();
+    private static List<StockIn> stockInList;
     private static List<Product> prod;
     private static List<Product> staffProd;
     private static List<StockRequest> SRList;
-    private static int index=0;
+    private static int index;
     private static JFrame mainFrame;
     private static SRRW srrw;
     private static ProductDatabase pd;
@@ -29,6 +29,8 @@ public class StockInMenu {
     JButton display=new JButton("Display Stock In");
     JButton delete=new JButton("Delete Stock In");
     public StockInMenu(){
+        index=0;
+        stockInList=new ArrayList<StockIn>();
         srrw=new SRRW();
         pd=new ProductDatabase();
         prod=srrw.getProd();
