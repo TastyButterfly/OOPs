@@ -18,8 +18,7 @@ public class CancelMenu {
     private static List<Product> staffProd;
     private static List<Order> order;
     private static OrderFileReader ofr;
-    private static String loggedInUsername="Staff  ";
-    private static MyFrame mainFrame;
+    private static JFrame mainFrame;
     private static ProductDatabase pd;
     JPanel panel=new JPanel();
     JButton add=new JButton("Add Cancellation");
@@ -41,10 +40,11 @@ public class CancelMenu {
         panel.add(display);
         panel.add(delete);
         panel.add(back);
-        mainFrame=new MyFrame(loggedInUsername);
-        mainFrame.setContentPanel(panel);
+        mainFrame=new JFrame("Cancellation Menu");
+        mainFrame.add(panel);
         mainFrame.setSize(600,600);
         mainFrame.setVisible(true);
+        mainFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         add.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

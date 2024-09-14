@@ -19,8 +19,7 @@ public class StockInMenu {
     private static List<Product> staffProd;
     private static List<StockRequest> SRList;
     private static int index=0;
-    private static String loggedInUsername="Staff  ";
-    private static MyFrame mainFrame;
+    private static JFrame mainFrame;
     private static SRRW srrw;
     private static ProductDatabase pd;
     JPanel panel=new JPanel();
@@ -31,6 +30,7 @@ public class StockInMenu {
     JButton delete=new JButton("Delete Stock In");
     public StockInMenu(){
         srrw=new SRRW();
+        pd=new ProductDatabase();
         prod=srrw.getProd();
         staffProd=new ArrayList<Product>(pd.getStaffProducts().values());
         SRList=srrw.getSRList();
@@ -41,10 +41,11 @@ public class StockInMenu {
         panel.add(display);
         panel.add(delete);
         panel.add(back);
-        mainFrame=new MyFrame(loggedInUsername);
-        mainFrame.setContentPanel(panel);
+        mainFrame=new JFrame("Stock In Menu");
+        mainFrame.add(panel);
         mainFrame.setSize(600,600);
         mainFrame.setVisible(true);
+        mainFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         add.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

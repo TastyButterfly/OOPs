@@ -16,8 +16,7 @@ public class SRMenu{
     private static List<StockRequest> SRList= new ArrayList<StockRequest>();
     private static List<Product> prod;
     private static ProductDatabase pd;
-    private static MyFrame mainFrame;
-    private static String loggedInUserName="Staff";
+    private static JFrame mainFrame;
     JPanel panel=new JPanel();
     JButton add=new JButton("Add Stock Request");
     JButton modify=new JButton("Modify Stock Request");
@@ -34,10 +33,11 @@ public class SRMenu{
         panel.add(display);
         panel.add(delete);
         panel.add(back);
-        mainFrame=new MyFrame(loggedInUserName);
-        mainFrame.setContentPanel(panel);
+        mainFrame=new JFrame("Stock Request Menu");
+        mainFrame.add(panel);
         mainFrame.setSize(600,600);
         mainFrame.setVisible(true);
+        mainFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         add.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

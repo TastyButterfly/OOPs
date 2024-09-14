@@ -16,8 +16,7 @@ public class StockOutMenu {
     private static List<StockOut> stockOut=new ArrayList<>();
     private static List<Product> prod;
     private static List<Product> staffProd;
-    private static String loggedInUsername="Staff  ";
-    private static MyFrame mainFrame;
+    private static JFrame mainFrame;
     private static ProductDatabase pd;
     JPanel panel=new JPanel();
     JButton add=new JButton("Add Stock Out");
@@ -36,10 +35,11 @@ public class StockOutMenu {
         panel.add(display);
         panel.add(delete);
         panel.add(back);
-        mainFrame=new MyFrame(loggedInUsername);
-        mainFrame.setContentPanel(panel);
+        mainFrame=new JFrame("Stock Out Menu");
         mainFrame.setSize(600,600);
         mainFrame.setVisible(true);
+        mainFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        mainFrame.add(panel);
         add.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -68,7 +68,6 @@ public class StockOutMenu {
             @Override
             public void actionPerformed(ActionEvent e) {
                 mainFrame.dispose();
-                new Main();
             }
         });
         Font buttonFont = new Font("Segoe UI", Font.PLAIN, 24); // You can change the font size and style as needed
