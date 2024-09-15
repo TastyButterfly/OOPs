@@ -126,8 +126,6 @@ public class CancellationReport {
             return null;
         }
     }
-    
-
     public void displayReport() {
         readFromFile();
         count();
@@ -204,10 +202,7 @@ public class CancellationReport {
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setVisible(true);
-
     }
-
-
     public void count(){
         for(int i=0;i<cancel.size();i++){//for size in cancel
             for(int j=0;j<data.size();j++){//for size in data
@@ -225,9 +220,8 @@ public class CancellationReport {
             }
         });
     }
-    
-    // Method to export the report to a CSV file
     private void exportToCSV(DefaultTableModel model) {
+        // Method to export the report to a CSV file
         try (FileWriter writer = new FileWriter("CancellationReport.csv")) {
             for (int i = 0; i < model.getColumnCount(); i++) {//Write table header
                 writer.write(model.getColumnName(i) + ",");
