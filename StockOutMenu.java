@@ -78,32 +78,6 @@ public class StockOutMenu {
         delete.setFont(buttonFont);
         back.setFont(buttonFont);
     }
-    public void writeToProd(){
-        try (FileWriter fw = new FileWriter("Product.txt");
-        BufferedWriter bw = new BufferedWriter(fw);
-        PrintWriter pw = new PrintWriter(bw)) {
-
-            for (Product p : prod) {
-                if (p != null) {
-                    pw.println(p.getProdID() + "," +
-                                p.getProdName() + "," +
-                                String.format("%.2f",p.getPrice()) + "," +
-                                p.getTotalQty() + "," +
-                                p.getQtySizes()[0] + "," +
-                                p.getQtySizes()[1] + "," +
-                                p.getQtySizes()[2] + "," +
-                                p.getQtySizes()[3]);
-                }
-            }
-        }catch (Exception e) {
-            if(e instanceof IOException){
-                JOptionPane.showMessageDialog(null, "Error writing to file.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-            else{
-                JOptionPane.showMessageDialog(null, "An unexpected error occurred. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
     public void writeToStaffProd(){
         try (FileWriter fw = new FileWriter("StaffProduct.txt");
         BufferedWriter bw = new BufferedWriter(fw);
@@ -169,7 +143,7 @@ public class StockOutMenu {
 
             // Skip the header line if present
             br.readLine();
-
+            StockOut.setCount(0);
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(",");
                 if (fields.length == 10) {
@@ -244,7 +218,7 @@ public class StockOutMenu {
                 return;
             }
             writeToFile();
-            writeToProd();
+            writeToStaffProd();
         }
         catch(Exception e){
             if(e instanceof NullPointerException){
@@ -304,7 +278,6 @@ public class StockOutMenu {
                     if (newProdID != null && !newProdID.trim().isEmpty()&& searchProduct(newProdID)!=null &&  searchSO(stockOutID).setPQS(searchStaffProduct(newProdID),searchProduct(newProdID), Integer.parseInt(newQty), newSize)) {
                         JOptionPane.showMessageDialog(frame, "Changes made successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         writeToFile();
-                        writeToProd();
                         writeToStaffProd();
                     }
                 }
@@ -320,7 +293,6 @@ public class StockOutMenu {
                             JOptionPane.showMessageDialog(frame, "Quantity updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                             writeToFile();
                             writeToStaffProd();
-                            writeToProd();
                         }
                         else if(searchStaffProduct(searchSO(stockOutID).getProduct().getProdID()).getQtySizes()[searchStaffProduct(searchSO(stockOutID).getProduct().getProdID()).getSizeIndex(searchSO(stockOutID).getSize())]<Integer.parseInt(newQtyStr)){
                             JOptionPane.showMessageDialog(null, "Stocked Out quantity exceeds that in stock!.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);

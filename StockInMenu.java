@@ -177,7 +177,7 @@ public class StockInMenu {
 
             // Skip the header line if present
             br.readLine();
-
+            StockIn.setCount(0);
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(",");
                 if (fields.length == 11) {

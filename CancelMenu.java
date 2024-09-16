@@ -31,7 +31,6 @@ public class CancelMenu {
         pd=new ProductDatabase();
         prod=new ArrayList<Product>(pd.getProducts().values());
         staffProd=new ArrayList<Product>(pd.getStaffProducts().values());
-        readStaffProduct();
         ofr=new OrderFileReader();
         order=ofr.getAllOrders();
         if(!readFromFile()) return;
@@ -136,21 +135,6 @@ public class CancelMenu {
             }
         }
     }
-    public void readStaffProduct(){
-        try (BufferedReader br = new BufferedReader(new FileReader("StaffProduct.txt"))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
-                for (int i = 4; i < parts.length; i++) {
-                    searchStaffProduct(parts[0]).getQtySizes()[i-4] = Integer.parseInt(parts[i]);
-                }
-            }
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error reading from file.", "Error", JOptionPane.ERROR_MESSAGE);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "An unexpected error occurred. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
     public void writeToFile(){
         try (FileWriter fw = new FileWriter("Cancellation.csv");
         BufferedWriter bw = new BufferedWriter(fw);
@@ -192,7 +176,7 @@ public class CancelMenu {
 
             // Skip the header line if present
             br.readLine();
-
+            Cancellation.setCount(0); // Reset the count to prevent gaps in numbering
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(",");
                 if (fields.length == 12) {

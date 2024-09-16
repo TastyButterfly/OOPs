@@ -4,29 +4,29 @@ import java.util.*;
 public class StockIn extends Stock{
     private String stockInID;
     private static Set<String> stockInIDSet=new HashSet<String>();
-    private static int count=0;
+    private static int SIcount=0;
     private StockRequest SR;
     private int temp;
     public StockIn(){
-        while(stockInIDSet.contains(String.format("%s%04d","SI",++count))){
-            if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
+        while(stockInIDSet.contains(String.format("%s%04d","SI",++SIcount))){
+            if(SIcount>=9999) SIcount=0;//RESET SIcount IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
         }//ENSURE NO DUPLICATE IDs
-        stockInID=String.format("%s%04d","SI",count);
+        stockInID=String.format("%s%04d","SI",SIcount);
         stockInIDSet.add(stockInID);
     }
     public StockIn(StockRequest SR){
-        while(stockInIDSet.contains(String.format("%s%04d","SI",++count))){
-            if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
+        while(stockInIDSet.contains(String.format("%s%04d","SI",++SIcount))){
+            if(SIcount>=9999) SIcount=0;//RESET SIcount IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
         }//ENSURE NO DUPLICATE IDs
-        stockInID=String.format("%s%04d","SI",count);
+        stockInID=String.format("%s%04d","SI",SIcount);
         stockInIDSet.add(stockInID);
         setSR(SR);
     }
     public StockIn(Product product, int qty, String size, Product staffProduct){
-        while(stockInIDSet.contains(String.format("%s%04d","SI",++count))){
-            if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
+        while(stockInIDSet.contains(String.format("%s%04d","SI",++SIcount))){
+            if(SIcount>=9999) SIcount=0;//RESET SIcount IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
         }//ENSURE NO DUPLICATE IDs
-        stockInID=String.format("%s%04d","SI",count);
+        stockInID=String.format("%s%04d","SI",SIcount);
         stockInIDSet.add(stockInID);
         setPQS(staffProduct, product, qty, size);
     }
@@ -39,7 +39,7 @@ public class StockIn extends Stock{
         this.size=size;
         setSR(SR);
         date.changeDateTime(d, m, y, h, min, s);
-        count++;
+        SIcount++;
     }
     //Constructors
     public boolean changeSIID(String stockInID){
@@ -147,12 +147,15 @@ public class StockIn extends Stock{
             return false;
         }
     }
+    public static void setCount(int count){
+        SIcount=count;
+    }
     //Setters
     public StockRequest getSR(){
         return SR;
     }
     public int getCount(){
-        return count;
+        return SIcount;
     }
     public String getSIID(){
         return stockInID;

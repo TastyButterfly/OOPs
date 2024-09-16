@@ -4,22 +4,22 @@ import java.util.*;
 public class StockRequest extends Stock{
     private String SRID;
     private static Set<String> SRIDSet=new HashSet<String>();
-    private static int count=0;
+    private static int SRcount=0;
     private String status;
     private int outstanding; //Outstanding Quantity
     public StockRequest(){
-        while(SRIDSet.contains(String.format("%s%04d","SR",++count))){
-            if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
+        while(SRIDSet.contains(String.format("%s%04d","SR",++SRcount))){
+            if(SRcount>=9999) SRcount=0;//RESET SRcount IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
         }//ENSURE NO DUPLICATE IDs
-        SRID=String.format("%s%04d","SR",count);
+        SRID=String.format("%s%04d","SR",SRcount);
         SRIDSet.add(SRID);
         setStatus("Pending");
     }
     public StockRequest(Product product, int qty, String size){
-        while(SRIDSet.contains(String.format("%s%04d","SR",++count))){
-            if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
+        while(SRIDSet.contains(String.format("%s%04d","SR",++SRcount))){
+            if(SRcount>=9999) SRcount=0;//RESET SRcount IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
         }//ENSURE NO DUPLICATE IDs
-        SRID=String.format("%s%04d","SR",count);
+        SRID=String.format("%s%04d","SR",SRcount);
         SRIDSet.add(SRID);
         setPQS(product, qty,size);
         setStatus("Pending");
@@ -33,7 +33,7 @@ public class StockRequest extends Stock{
         this.size=size;
         this.status=status;
         date.changeDateTime(d, m, y, h, min, s);
-        count++;
+        SRcount++;
     }
     //Constructors
     public void setStatus(String status){
@@ -107,9 +107,12 @@ public class StockRequest extends Stock{
             }
         }
     }
+    public static void setCount(int count){
+        SRcount=count;
+    }
     //Setters
     public int getCount(){
-        return count;
+        return SRcount;
     }
     public String getSRID(){
         return SRID;

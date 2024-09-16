@@ -1,6 +1,6 @@
 C01-1023,Mini T-shirt,19.90,297,75,78,89,55
 C01-1103,Souffle Crew Neck Sweater,59.90,430,80,100,120,130
-C01-1104,Soft Flannel Blouse,129.90,350,60,90,120,80
+C01-1104,Soft Flannel Blouse,129.90,391,70,121,120,80
 C03-3072,Ultra Stretch Dress,69.90,210,50,50,55,55
 C01-1120,Cotton Blend Parka,79.90,510,90,135,143,142
 C02-1039,Wide Trouser Jeans,49.90,595,159,96,150,190

@@ -6,14 +6,14 @@ public class Cancellation extends Stock{
     private static Set<String> cancelIDSet=new HashSet<String>();
     private String cancelID;
     private Order order;
-    private static int count=0;
+    private static int CAcount=0;
     private String status;
     //Attributes
     public Cancellation(String status, Product product, int qty, Order order, String size, Product staffProduct){
-        while(cancelIDSet.contains(String.format("%s%04d","CA",++count))){
-            if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
+        while(cancelIDSet.contains(String.format("%s%04d","CA",++CAcount))){
+            if(CAcount>=9999) CAcount=0;//RESET CAcount IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
         }//ENSURE NO DUPLICATE IDs
-        cancelID=String.format("%s%04d","CA",count);
+        cancelID=String.format("%s%04d","CA",CAcount);
         cancelIDSet.add(cancelID);
         this.status=status;
         this.staffProduct=staffProduct;
@@ -21,25 +21,25 @@ public class Cancellation extends Stock{
         setOrder(order);
     }
     public Cancellation(Order order){
-        while(cancelIDSet.contains(String.format("%s%04d","CA",++count))){
-            if(count>=9999) count=0;
+        while(cancelIDSet.contains(String.format("%s%04d","CA",++CAcount))){
+            if(CAcount>=9999) CAcount=0;
         }//ENSURE NO DUPLICATE IDs
-        cancelID=String.format("%s%04d","CA",count);
+        cancelID=String.format("%s%04d","CA",CAcount);
         cancelIDSet.add(cancelID);
         setOrder(order);
     }
     public Cancellation(){
-        while(cancelIDSet.contains(String.format("%s%04d","CA",++count))){
-            if(count>=9999) count=0;
+        while(cancelIDSet.contains(String.format("%s%04d","CA",++CAcount))){
+            if(CAcount>=9999) CAcount=0;
         }//ENSURE NO DUPLICATE IDs
-        cancelID=String.format("%s%04d","CA",count);
+        cancelID=String.format("%s%04d","CA",CAcount);
         cancelIDSet.add(cancelID);
     }
     public Cancellation(Product product, int qty, String size, Product staffProduct){
-        while(cancelIDSet.contains(String.format("%s%04d","CA",++count))){
-            if(count>=9999) count=0;
+        while(cancelIDSet.contains(String.format("%s%04d","CA",++CAcount))){
+            if(CAcount>=9999) CAcount=0;
         }//ENSURE NO DUPLICATE IDs
-        cancelID=String.format("%s%04d","CA",count);
+        cancelID=String.format("%s%04d","CA",CAcount);
         cancelIDSet.add(cancelID);
         setPQS(status, staffProduct, product, qty,size);
     }
@@ -53,7 +53,7 @@ public class Cancellation extends Stock{
         this.qty=qty;
         this.size=size;
         setOrder(order);
-        count++;
+        CAcount++;
     }
     //Constructor
     public boolean setStatus(String status){
@@ -181,12 +181,15 @@ public class Cancellation extends Stock{
             return true;
         }
     }
+    public static void setCount(int count){
+        CAcount=count;
+    }
     //Setters
     public Order getOrder(){
         return order;
     }
     public int getCount(){
-        return count;
+        return CAcount;
     }
     public String getCancelID(){
         return cancelID;

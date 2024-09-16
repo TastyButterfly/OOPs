@@ -48,7 +48,7 @@ public class CancellationReport {
 
             // Skip the header line if present
             br.readLine();
-
+            Cancellation.setCount(0); // Reset the count to 0
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(",");
                 if (fields.length == 12) {

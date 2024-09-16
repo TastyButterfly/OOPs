@@ -118,7 +118,7 @@ public class SRMenu{
 
             // Skip the header line if present
             br.readLine();
-
+            StockRequest.setCount(0);
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(",");
                 if (fields.length == 12) {
@@ -219,7 +219,7 @@ public class SRMenu{
             SRIDButton.setFont(buttonFont);
             SRIDButton.setForeground(Color.WHITE);
             SRIDButton.setBackground(new Color(128, 0, 0)); // Maroon color
-            JLabel warningLabel = new JLabel("      Warning: Changing the Stock Out ID can be dangerous. DO SO WITH CAUTION!");
+            JLabel warningLabel = new JLabel("  Warning: Changing the Stock Request ID can be dangerous. DO SO WITH CAUTION!");
             warningLabel.setForeground(Color.RED);
             JButton dateButton = new JButton("Change Date");
             dateButton.setFont(buttonFont);

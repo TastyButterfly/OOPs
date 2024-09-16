@@ -182,7 +182,7 @@ public abstract class Stock{
                 this.staffProduct=staffProduct;
                 this.product=product;
                 this.size=size;
-                staffProduct.updateProductQuantities(size,-qty);
+                staffProduct.updateProductQuantities(size,qty);
                 this.qty=qty;
             }
             return true;

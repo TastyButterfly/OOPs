@@ -4,19 +4,19 @@ import javax.swing.*;
 public class StockOut extends Stock{
     private String stockOutID;
     private static Set<String> stockOutIDSet=new HashSet<String>();
-    private static int count=0;
+    private static int SOcount=0;
     public StockOut(){
-        while(stockOutIDSet.contains(String.format("%s%04d","SO",++count))){
-            if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
+        while(stockOutIDSet.contains(String.format("%s%04d","SO",++SOcount))){
+            if(SOcount>=9999) SOcount=0;//RESET SOcount IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
         }//ENSURE NO DUPLICATE IDs
-        stockOutID=String.format("%s%04d","SO",count);
+        stockOutID=String.format("%s%04d","SO",SOcount);
         stockOutIDSet.add(stockOutID);
     }
     public StockOut(Product product, int qty, String size, Product staffProduct){
-        while(stockOutIDSet.contains(String.format("%s%04d","SO",++count))){
-            if(count>=9999) count=0;//RESET COUNT IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
+        while(stockOutIDSet.contains(String.format("%s%04d","SO",++SOcount))){
+            if(SOcount>=9999) SOcount=0;//RESET SOcount IF IT EXCEEDS 9999, TO PREVENT OVERFLOW
         }//ENSURE NO DUPLICATE IDs
-        stockOutID=String.format("%s%04d","SO",count);
+        stockOutID=String.format("%s%04d","SO",SOcount);
         stockOutIDSet.add(stockOutID);
         setPQS(staffProduct, product, qty, size);
     }
@@ -28,7 +28,7 @@ public class StockOut extends Stock{
         this.qty=qty;
         this.size=size;
         date.changeDateTime(d, m, y, h, min, s);
-        count++;
+        SOcount++;
     }
     //Constructors
     public boolean changeSOID(String stockOutID){
@@ -53,9 +53,12 @@ public class StockOut extends Stock{
     public boolean setPQS(Product staffProduct, Product product, int qty, String size){
         return super.setPQS(false,staffProduct,product,qty,size);
     }
+    public static void setCount(int count){
+        SOcount=count;
+    }
     //Setters
     public int getCount(){
-        return count;
+        return SOcount;
     }
     public String getSOID(){
         return stockOutID;
