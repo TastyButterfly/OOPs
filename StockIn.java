@@ -58,7 +58,7 @@ public class StockIn extends Stock{
     public void setSR(StockRequest SR){
         try{
             if(product==SR.getProduct()){
-                if(SR!=null){
+                if(this.SR!=null){
                     SR.setOutstanding(SR.getOutstanding()+qty);
                 }
                 this.SR=SR;
