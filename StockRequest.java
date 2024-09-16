@@ -79,11 +79,7 @@ public class StockRequest extends Stock{
         }
     }
     public void setOutstanding(int outstanding){
-        if(outstanding<0){
-            JOptionPane.showMessageDialog(null, "Outstanding Quantity must be 0 or more!", "Warning", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        else if(outstanding==0){
+        if(outstanding<=0){
             setStatus("Fulfilled");
         }
         else if(outstanding>0 && outstanding<qty){

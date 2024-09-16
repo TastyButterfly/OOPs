@@ -1,2 +1,2 @@
 Stock Request ID,Status,Product ID,Quantity,Outstanding,Size,Day,Month,Year,Hour,Minute,Second
-SR0001,Fulfilled,C01-1104,20,0,S,13,9,2024,4,29,1
+SR0001,Fulfilled,C01-1104,20,-10,S,13,9,2024,4,29,1

@@ -255,13 +255,10 @@ public class SRMenu{
                 public void actionPerformed(ActionEvent e) {
                     String newOutstandingStr = JOptionPane.showInputDialog(frame, "Enter new outstanding quantity:", searchSR(SRID).getOutstanding());
                     try {
-                        if (newOutstandingStr != null && !newOutstandingStr.trim().isEmpty() && Integer.parseInt(newOutstandingStr)>=0) {
+                        if (newOutstandingStr != null && !newOutstandingStr.trim().isEmpty()) {
                             searchSR(SRID).setOutstanding(Integer.parseInt(newOutstandingStr));
                             JOptionPane.showMessageDialog(frame, "Outstanding quantity updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                             writeToFile();
-                        }
-                        else if(Integer.parseInt(newOutstandingStr)<0){
-                            JOptionPane.showMessageDialog(null, "Outstanding quantity must be more than or equal to 0!", "Warning", JOptionPane.WARNING_MESSAGE);
                         }
                         else{
                             JOptionPane.showMessageDialog(frame, "An unexpected error occurred. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -379,14 +376,23 @@ public class SRMenu{
         }
     }
     public void displayStockRequest(){
+        int displayOs;
         try{
             String SRID=JOptionPane.showInputDialog("Enter Stock Request ID: ");
             if(searchSR(SRID)==null) return;
             StockRequest SR = searchSR(SRID);
+            if(SR.getOutstanding()<=0){
+                displayOs=0;
+            }
+            else{
+                displayOs=SR.getOutstanding();
+            }
             String[][] data = {
                 {"Stock Request ID:", SR.getSRID()},
                 {"Product ID:", SR.getProduct().getProdID()},
                 {"Quantity:", String.valueOf(SR.getQty())},
+                {"Outstanding Quantity:", String.valueOf(displayOs)},
+                {"Status:", SR.getStatus()},
                 {"Size:", SR.getSize()},
                 {"Date:", SR.getDate().getDMY()},
                 {"Time:", SR.getDate().getTime()}
@@ -405,7 +411,7 @@ public class SRMenu{
 
             // Create a JScrollPane to make the text area scrollable
             JScrollPane scrollPane = new JScrollPane(table);
-            scrollPane.setPreferredSize(new Dimension(400, 173));
+            scrollPane.setPreferredSize(new Dimension(400, 223));
 
             // Show the details in a JOptionPane
             JOptionPane.showMessageDialog(null, scrollPane, "Record Details", JOptionPane.INFORMATION_MESSAGE);

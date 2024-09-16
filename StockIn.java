@@ -59,7 +59,7 @@ public class StockIn extends Stock{
         try{
             if(product==SR.getProduct()){
                 if(this.SR!=null){
-                    this.SR.setOutstanding(SR.getOutstanding()+qty);
+                    this.SR.setOutstanding(SR.getOutstanding()+qty);//RESET OUTSTANDING OF OLD SR
                 }
                 this.SR=SR;
                 SR.setOutstanding(SR.getOutstanding()-qty);
