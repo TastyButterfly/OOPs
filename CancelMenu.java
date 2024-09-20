@@ -437,7 +437,7 @@ public class CancelMenu {
                 public void actionPerformed(ActionEvent e) {
                     String newCancelID = JOptionPane.showInputDialog(frame, "Enter new cancellation ID:", searchCancel(cancelID).getCancelID());
                     if (newCancelID != null && !newCancelID.trim().isEmpty() && searchCancel(newCancelID) == null) {
-                        searchCancel(cancelID).changeCancelID(newCancelID);
+                        if(searchCancel(cancelID).changeCancelID(newCancelID))
                         JOptionPane.showMessageDialog(frame, "Cancellation ID updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         writeToFile();
                     }
@@ -568,6 +568,7 @@ public class CancelMenu {
             int choice=JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?", "Warning", JOptionPane.YES_NO_OPTION);
             if(choice==JOptionPane.YES_OPTION){
                 cancel.remove(searchCancel(cancelID));
+                Cancellation.getCancelIDSet().remove(cancelID);
                 JOptionPane.showMessageDialog(null, "Record deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                 writeToFile();
             }

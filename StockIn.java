@@ -160,5 +160,8 @@ public class StockIn extends Stock{
     public String getSIID(){
         return stockInID;
     }
+    public static Set<String> getSIIDSet(){
+        return stockInIDSet;
+    }
     //Getters
 }

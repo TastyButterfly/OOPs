@@ -433,6 +433,7 @@ public class SRMenu{
             int choice=JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?", "Warning", JOptionPane.YES_NO_OPTION);
             if(choice==JOptionPane.YES_OPTION){
                 SRList.remove(searchSR(SRID));
+                StockRequest.getSRIDSet().remove(SRID);
                 JOptionPane.showMessageDialog(null, "Record deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                 writeToFile();
             }

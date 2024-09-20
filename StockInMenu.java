@@ -339,7 +339,7 @@ public class StockInMenu {
                 public void actionPerformed(ActionEvent e) {
                     String newSRID = JOptionPane.showInputDialog(frame, "Enter new Stock Request ID:", searchStockIn(stockInID).getSR().getSRID());
                     if (newSRID != null && !newSRID.trim().isEmpty() && searchSR(newSRID) != null) {
-                        searchStockIn(stockInID).setSR(searchSR(newSRID));
+                        if(searchStockIn(stockInID).changeSIID(stockInID))
                         JOptionPane.showMessageDialog(frame, "Order ID updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         writeToFile();
                     }   
@@ -484,6 +484,7 @@ public class StockInMenu {
             int choice=JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?", "Warning", JOptionPane.YES_NO_OPTION);
             if(choice==JOptionPane.YES_OPTION){
                 stockInList.remove(searchStockIn(stockInID));
+                StockIn.getSIIDSet().remove(stockInID);
                 JOptionPane.showMessageDialog(null, "Record deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                 writeToFile();
             }

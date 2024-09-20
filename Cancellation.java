@@ -197,5 +197,8 @@ public class Cancellation extends Stock{
     public String getStatus(){
         return status;
     }
+    public static Set<String> getCancelIDSet(){
+        return cancelIDSet;
+    }
     //Getters
 }

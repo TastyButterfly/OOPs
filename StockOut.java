@@ -63,6 +63,9 @@ public class StockOut extends Stock{
     public String getSOID(){
         return stockOutID;
     }
+    public static Set<String> getSOIDSet(){
+        return stockOutIDSet;
+    }
     //Getters
 }
 

@@ -123,5 +123,8 @@ public class StockRequest extends Stock{
     public int getOutstanding(){
         return outstanding;
     }
+    public static Set<String> getSRIDSet(){
+        return SRIDSet;
+    }
     //Getters
 }
