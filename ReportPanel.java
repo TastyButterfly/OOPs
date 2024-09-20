@@ -1,8 +1,5 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -13,53 +10,15 @@ import java.util.Comparator;
 
 public class ReportPanel extends JPanel {
 
-    private final JButton btnLowStock;
-    private final JButton btnMaxStock;
-    private final JButton btnOutOfStock;
     private JTextField searchBox;
     private DefaultTableModel tableModel;
     private TableRowSorter<DefaultTableModel> rowSorter;
     private JComboBox<String> sortComboBox;
+    private JTable reportTable;
 
     public ReportPanel() {
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);
-
-        // Summary Panel (Top panel)
-        JPanel summaryPanel = new JPanel();
-        summaryPanel.setLayout(null);
-        summaryPanel.setBackground(Color.WHITE);
-        summaryPanel.setPreferredSize(new Dimension(1200, 300));
-
-        JPanel innerSummaryPanel = new JPanel();
-        innerSummaryPanel.setBackground(new Color(176, 196, 222));
-        innerSummaryPanel.setLayout(null);
-        innerSummaryPanel.setBounds(50, 30, 900, 250);
-
-        JPanel headerRectangle = new JPanel();
-        headerRectangle.setBackground(new Color(100, 149, 237));
-        headerRectangle.setBounds(2, 10, 900, 50);
-        JLabel summaryLabel = new JLabel("SUMMARY");
-        summaryLabel.setForeground(Color.WHITE);
-        summaryLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        headerRectangle.add(summaryLabel);
-
-        // Buttons (read numbers from txt file)
-        btnLowStock = createSummaryButton("Low Stock Product", readProductCount("lowStock.txt"));
-        btnOutOfStock = createSummaryButton("Out Of Stock Product", readProductCount("outOfStock.txt"));
-        btnMaxStock = createSummaryButton("Max Stock Product", readProductCount("maxStock.txt"));
-
-        btnLowStock.setBounds(100, 80, 220, 120);
-        btnOutOfStock.setBounds(340, 80, 220, 120);
-        btnMaxStock.setBounds(580, 80, 220, 120);
-
-        innerSummaryPanel.add(headerRectangle);
-        innerSummaryPanel.add(btnLowStock);
-        innerSummaryPanel.add(btnOutOfStock);
-        innerSummaryPanel.add(btnMaxStock);
-
-        summaryPanel.add(innerSummaryPanel);
-        add(summaryPanel, BorderLayout.NORTH);
 
         // Report Panel (Bottom panel)
         JPanel reportPanel = new JPanel();
@@ -71,37 +30,11 @@ public class ReportPanel extends JPanel {
         add(reportPanel, BorderLayout.CENTER);
     }
 
-    private JButton createSummaryButton(String text, int count) {
-        JButton button = new JButton("<html><center>" + count + "<br>" + text + "</center></html>");
-        button.setFont(new Font("Arial", Font.BOLD, 18));
-        button.setBackground(new Color(30, 144, 255));
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setHorizontalAlignment(SwingConstants.CENTER);
-        button.setBorder(BorderFactory.createLineBorder(new Color(70, 130, 180), 2));
-        return button;
-    }
-
-    private int readProductCount(String filePath) {
-        int count = 0;
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                count += Integer.parseInt(line.trim());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return count;
-    }
-
     private void addReportPanelContent(JPanel reportPanel) {
         // Drop down lists and search box
         JPanel filterPanel = new JPanel();
         filterPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        JComboBox<String> yearComboBox = new JComboBox<>(new String[]{"2020", "2021", "2022", "2023"});
-        JComboBox<String> monthComboBox = new JComboBox<>(new String[]{"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"});
         JComboBox<String> reportTypeComboBox = new JComboBox<>(new String[]{"All", "Summary Reports", "Exception Reports", "Detail Reports"}); // Added "All" option
         searchBox = new JTextField(15);
 
@@ -109,10 +42,6 @@ public class ReportPanel extends JPanel {
         sortComboBox = new JComboBox<>(new String[]{"Sort A-Z", "Sort Z-A", "Priority"});
         sortComboBox.addActionListener(this::sortComboBoxActionPerformed); // Add action listener
 
-        filterPanel.add(new JLabel("Year:"));
-        filterPanel.add(yearComboBox);
-        filterPanel.add(new JLabel("Month:"));
-        filterPanel.add(monthComboBox);
         filterPanel.add(new JLabel("Report Type:"));
         filterPanel.add(reportTypeComboBox); // Adding reportTypeComboBox to panel
         filterPanel.add(new JLabel("Search:"));
@@ -129,12 +58,12 @@ public class ReportPanel extends JPanel {
             {"Sales Summary Report", "Unread", false, "Summary Reports"},
             {"Low Stock Alert Report", "Unread", false, "Exception Reports"},
             {"Stock Discrepancy Report", "Unread", false, "Exception Reports"},
-            {"Purchase Order Detail Report", "Unread", false, "Detail Reports"},
-            {"Inventory Movement Detail Report", "Unread", false, "Detail Reports"},
+            {"Revenue Report", "Unread", false, "Detail Reports"},
+            {"Cancellation Report", "Unread", false, "Detail Reports"},
         };
 
         tableModel = new DefaultTableModel(data, columnNames);
-        JTable reportTable = new JTable(tableModel) {
+        reportTable = new JTable(tableModel) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return column == 2; // Only allow editing in the Action column
@@ -148,10 +77,32 @@ public class ReportPanel extends JPanel {
         reportTable.removeColumn(reportTable.getColumnModel().getColumn(3));
 
         reportTable.getColumnModel().getColumn(1).setCellRenderer(new StatusRenderer());
-
+        
         // Add button to the "Action" column for viewing reports
         reportTable.getColumnModel().getColumn(2).setCellRenderer(new ButtonRenderer());
-        reportTable.getColumnModel().getColumn(2).setCellEditor(new ButtonEditor(new JCheckBox(), reportTable));
+        reportTable.getColumnModel().getColumn(2).setCellEditor(new ButtonEditor(new JCheckBox(), reportTable, this));
+
+        // Add button click listener for "View"
+        reportTable.getSelectionModel().addListSelectionListener(e -> {
+            int selectedRow = reportTable.getSelectedRow();
+            if (selectedRow >= 0) {
+                String reportName = (String) tableModel.getValueAt(selectedRow, 0);  // Get the report name
+            
+                // Check if the selected report is "Revenue Report"
+                if ("Revenue Report".equals(reportName)) {
+                    MyFrame mainFrame = (MyFrame) SwingUtilities.getWindowAncestor(this);
+                    //new RevenueReportPanel(mainFrame);
+                    //mainFrame.setContentPanel(new RevenueReportPanel()); // Switch to RevenueReportPanel
+                    //mainFrame.revalidate();
+                    //mainFrame.repaint();
+                }
+
+                // Check if the selected report is "Cancellation Report"
+                if ("Cancellation Report".equals(reportName)) {
+                    new CancellationReport();
+                }
+            }
+        });
 
         JScrollPane scrollPane = new JScrollPane(reportTable);
         reportPanel.add(scrollPane, BorderLayout.CENTER);
@@ -233,6 +184,10 @@ public class ReportPanel extends JPanel {
         }
     }
 
+    private void changeStatusToViewed(int row) {
+        reportTable.setValueAt("Viewed", row, 1);
+    }
+
     // Cell renderer for the "Status" column
     private static class StatusRenderer extends DefaultTableCellRenderer {
         @Override
@@ -256,22 +211,44 @@ public class ReportPanel extends JPanel {
         }
     }
 
+    // ButtonEditor for "Action" column
     private static class ButtonEditor extends DefaultCellEditor {
-        private final JTable table;
+        private JButton button;
+        private boolean clicked;
+        private JTable table;
+        private ReportPanel parentPanel;
 
-        public ButtonEditor(JCheckBox checkBox, JTable table) {
+        public ButtonEditor(JCheckBox checkBox, JTable table, ReportPanel parentPanel) {
             super(checkBox);
             this.table = table;
+            this.parentPanel = parentPanel;
+            button = new JButton();
+            button.setOpaque(true);
+            button.addActionListener(e -> fireEditingStopped());
         }
+        
 
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-            return new JButton("View");
+            button.setText("View");
+            clicked = true;
+            return button;
         }
 
         @Override
         public Object getCellEditorValue() {
-            return "View";
+            if (clicked) {
+                parentPanel.changeStatusToViewed(table.getSelectedRow());
+            }
+            clicked = false;
+            return null;
+        }
+        
+
+        @Override
+        public boolean stopCellEditing() {
+            clicked = false;
+            return super.stopCellEditing();
         }
     }
 }

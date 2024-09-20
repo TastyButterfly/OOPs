@@ -14,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-
 public class CancellationReport {
     private List<Cancellation> cancel= new ArrayList<Cancellation>();
     private List<Product> prod;
@@ -39,7 +38,6 @@ public class CancellationReport {
             JOptionPane.showMessageDialog(null, "Error: " + e, "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
     public boolean readFromFile(){
         Path path = Paths.get("Cancellation.csv");
         try (BufferedReader br = Files.newBufferedReader(path)) {
@@ -194,7 +192,6 @@ public class CancellationReport {
         JPanel buttonPanel = new JPanel();//separate panel for buttons
         buttonPanel.add(close);
         buttonPanel.add(export);
-
         // Add button panel to the frame
         panel.add(buttonPanel, BorderLayout.SOUTH);//put buttons at bottom of panel
         // Add panel to frame
