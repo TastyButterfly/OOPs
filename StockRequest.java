@@ -39,9 +39,6 @@ public class StockRequest extends Stock{
     public void setStatus(String status){
         if(status.equals("Pending")||status.equals("Partially Fulfilled")||status.equals("Fulfilled")){
             this.status=status;
-            if(status.equals("Fulfilled")){
-                outstanding=0;
-            }
         }
         else{
             JOptionPane.showMessageDialog(null, "Invalid Status.", "Warning", JOptionPane.WARNING_MESSAGE);

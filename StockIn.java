@@ -37,7 +37,7 @@ public class StockIn extends Stock{
         this.product=product;
         this.qty=qty;
         this.size=size;
-        setSR(SR);
+        this.SR=SR;
         date.changeDateTime(d, m, y, h, min, s);
         SIcount++;
     }

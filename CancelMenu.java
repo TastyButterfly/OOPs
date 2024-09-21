@@ -276,7 +276,6 @@ public class CancelMenu {
                 JOptionPane.showMessageDialog(null, "Invalid size.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            System.out.println(validateProduct(searchProduct(prodID),searchOrder(orderID)));
             if(validateProduct(searchProduct(prodID),searchOrder(orderID))==-1){
                 return;
             }
@@ -385,7 +384,10 @@ public class CancelMenu {
                     String newProdID = JOptionPane.showInputDialog(frame, "Enter new product ID:", searchCancel(cancelID).getProduct().getProdID());
                     String newQty=JOptionPane.showInputDialog(frame, "Enter new quantity:", searchCancel(cancelID).getQty());
                     String newSize=JOptionPane.showInputDialog(frame, "Enter new size:", searchCancel(cancelID).getSize());
-                    if (newProdID != null && !newProdID.trim().isEmpty()&& searchProduct(newProdID)!=null &&  searchCancel(cancelID).setPQS(searchCancel(cancelID).getStatus(),searchStaffProduct(newProdID),searchProduct(newProdID), Integer.parseInt(newQty), newSize)) {
+                    if(validateProduct(searchProduct(newProdID),searchCancel(cancelID).getOrder())==-1){
+                        return;
+                    }
+                    else if (newProdID != null && !newProdID.trim().isEmpty()&& searchProduct(newProdID)!=null &&  searchCancel(cancelID).setPQS(searchCancel(cancelID).getStatus(),searchStaffProduct(newProdID),searchProduct(newProdID), Integer.parseInt(newQty), newSize)) {
                         JOptionPane.showMessageDialog(frame, "Changes made successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         writeToFile();
                         writeToProd();
@@ -399,10 +401,10 @@ public class CancelMenu {
                 public void actionPerformed(ActionEvent e) {
                     String newOrderID = JOptionPane.showInputDialog(frame, "Enter new order ID:", searchCancel(cancelID).getOrder().getOrderID());
                     if (newOrderID != null && !newOrderID.trim().isEmpty() && searchOrder(newOrderID) != null) {
-                        searchCancel(cancelID).setOrder(searchOrder(newOrderID));
+                        if(searchCancel(cancelID).setOrder(searchOrder(newOrderID)))
                         JOptionPane.showMessageDialog(frame, "Order ID updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         writeToFile();
-                    }   
+                    } 
                 }
             });
         
@@ -412,9 +414,9 @@ public class CancelMenu {
                     String newQtyStr = JOptionPane.showInputDialog(frame, "Enter new quantity:", searchCancel(cancelID).getQty());
                     try {
                         if(validateProduct(searchCancel(cancelID).getProduct(),searchCancel(cancelID).getOrder())==-1){
-                            JOptionPane.showMessageDialog(null, "Product does not match Order.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);
+                            return;
                         }
-                        else if (newQtyStr != null && !newQtyStr.trim().isEmpty() && searchCancel(cancelID).setQty(searchCancel(cancelID).getStatus(),Integer.parseInt(newQtyStr)) && searchCancel(cancelID).getOrder().getQty().get(validateProduct(searchCancel(cancelID).getProduct(),searchCancel(cancelID).getOrder()))>=Integer.parseInt(newQtyStr)) {
+                        else if (newQtyStr != null && !newQtyStr.trim().isEmpty() && searchCancel(cancelID).getOrder().getQty().get(validateProduct(searchCancel(cancelID).getProduct(),searchCancel(cancelID).getOrder()))>=Integer.parseInt(newQtyStr) && searchCancel(cancelID).setQty(searchCancel(cancelID).getStatus(),Integer.parseInt(newQtyStr))) {
                             JOptionPane.showMessageDialog(frame, "Quantity updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                             writeToFile();
                             writeToStaffProd();
@@ -440,9 +442,19 @@ public class CancelMenu {
                         if(searchCancel(cancelID).changeCancelID(newCancelID))
                         JOptionPane.showMessageDialog(frame, "Cancellation ID updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         writeToFile();
+                        frame.dispose();
                     }
                     else if (newCancelID == null || newCancelID.trim().isEmpty()) {
                         JOptionPane.showMessageDialog(frame, "Record not updated. User entered no input or cancelled.", "Operation stopped.", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else if(newCancelID.equals(cancelID)){
+                        JOptionPane.showMessageDialog(frame, "Record not updated. New Cancellation ID is the same as the old one.", "Operation stopped.", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else if(Cancellation.getCancelIDSet().contains(newCancelID)){
+                        JOptionPane.showMessageDialog(frame, "Record not updated. New Cancellation ID already exists.", "Operation stopped.", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(frame, "An unexpected error occurred.", "Operation stopped.", JOptionPane.INFORMATION_MESSAGE);
                     }
                 }
             });

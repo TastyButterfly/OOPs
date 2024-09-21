@@ -326,9 +326,19 @@ public class SRMenu{
                     if (newSRID != null && !newSRID.trim().isEmpty() && searchSR(SRID).changeSRID(newSRID)) {
                         JOptionPane.showMessageDialog(frame, "Stock Request ID updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         writeToFile();
+                        frame.dispose();
                     }
                     else if(newSRID==null || newSRID.trim().isEmpty()){
                         JOptionPane.showMessageDialog(frame, "Record not updated. User entered no input or cancelled.", "Operation stopped.", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else if(newSRID.equals(SRID)){
+                        JOptionPane.showMessageDialog(frame, "Record not updated. New Stock Request ID is the same as the old one.", "Operation stopped.", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else if(StockRequest.getSRIDSet().contains(newSRID)){
+                        JOptionPane.showMessageDialog(frame, "Record not updated. New Stock Request ID already exists.", "Operation stopped.", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(frame, "An unexpected error occurred.", "Operation stopped.", JOptionPane.INFORMATION_MESSAGE);
                     }
                 }
             });

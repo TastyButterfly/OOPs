@@ -257,6 +257,14 @@ public class StockInMenu {
                 JOptionPane.showMessageDialog(null, "Invalid size.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
+            if(!searchSR(SRID).getSize().equals(size)){
+                JOptionPane.showMessageDialog(null, "Size does not match the size of the Stock Request.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            else if(searchSR(SRID).getProduct()!=searchProduct(prodID)){
+                JOptionPane.showMessageDialog(null, "Product does not match the product of the Stock Request.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             stockInList.add(new StockIn(searchProduct(prodID),qty,size,searchStaffProduct(prodID)));
             stockInList.get(index++).setSR(searchSR(SRID));
             JOptionPane.showMessageDialog(null, "Record added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -284,14 +292,12 @@ public class StockInMenu {
             if(searchStockIn(stockInID)==null) return;
             JOptionPane.showMessageDialog(null, "Record found.", "Success", JOptionPane.INFORMATION_MESSAGE);
             JFrame frame = new JFrame("Modify Stock In");
-            frame.setLayout(new GridLayout(7, 1));
+            frame.setLayout(new GridLayout(5, 1));
             frame.setSize(500, 500);
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             Font buttonFont = new Font("Segoe UI", Font.PLAIN, 18);
 
             // Add buttons for each attribute
-            JButton prodIDButton = new JButton("Change Product ID, Size and Quantity");
-            prodIDButton.setFont(buttonFont);
             JButton SRIDButton = new JButton("Change Stock Request ID");
             SRIDButton.setFont(buttonFont);
             JButton qtyButton = new JButton("Change Quantity");
@@ -307,9 +313,6 @@ public class StockInMenu {
             JButton timeButton = new JButton("Change Time");
             timeButton.setFont(buttonFont);
 
-
-            frame.add(prodIDButton);
-            frame.add(stockInIDButton);
             frame.add(qtyButton);
             frame.add(dateButton);
             frame.add(timeButton);
@@ -318,31 +321,28 @@ public class StockInMenu {
         
             // Add action listeners for the buttons
         
-            prodIDButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String newProdID = JOptionPane.showInputDialog(frame, "Enter new product ID:", searchStockIn(stockInID).getProduct().getProdID());
-                    String newQty=JOptionPane.showInputDialog(frame, "Enter new quantity:", searchStockIn(stockInID).getQty());
-                    String newSize=JOptionPane.showInputDialog(frame, "Enter new size:", searchStockIn(stockInID).getSize());
-                    if (newProdID != null && !newProdID.trim().isEmpty()&& searchProduct(newProdID)!=null &&  searchStockIn(stockInID).setPQS(searchStaffProduct(newProdID),searchProduct(newProdID), Integer.parseInt(newQty), newSize)) {
-                        JOptionPane.showMessageDialog(frame, "Changes made successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                        writeToFile();
-                        writeToProd();
-                        writeToStaffProd();
-                        srrw.writeToFile();
-                    }
-                }
-            });
-        
             stockInIDButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    String newSRID = JOptionPane.showInputDialog(frame, "Enter new Stock Request ID:", searchStockIn(stockInID).getSR().getSRID());
-                    if (newSRID != null && !newSRID.trim().isEmpty() && searchSR(newSRID) != null) {
-                        if(searchStockIn(stockInID).changeSIID(stockInID))
-                        JOptionPane.showMessageDialog(frame, "Order ID updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    String newSIID = JOptionPane.showInputDialog(frame, "Enter new Stock In ID:", searchStockIn(stockInID).getSIID());
+                    if (newSIID != null && !newSIID.trim().isEmpty() && searchStockIn(newSIID) == null) {
+                        if(searchStockIn(stockInID).changeSIID(newSIID))
+                        JOptionPane.showMessageDialog(frame, "Stock In ID updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         writeToFile();
-                    }   
+                        frame.dispose();
+                    }
+                    else if (newSIID == null || newSIID.trim().isEmpty()) {
+                        JOptionPane.showMessageDialog(frame, "Record not updated. User entered no input or cancelled.", "Operation stopped.", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else if(newSIID.equals(stockInID)){
+                        JOptionPane.showMessageDialog(frame, "Record not updated. New Stock In ID is the same as the old one.", "Operation stopped.", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else if(StockIn.getSIIDSet().contains(newSIID)){
+                        JOptionPane.showMessageDialog(frame, "Record not updated. New Stock In ID already exists.", "Operation stopped.", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(frame, "An unexpected error occurred.", "Operation stopped.", JOptionPane.INFORMATION_MESSAGE);
+                    }
                 }
             });
         
@@ -483,10 +483,13 @@ public class StockInMenu {
             if(searchStockIn(stockInID)==null) return;
             int choice=JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?", "Warning", JOptionPane.YES_NO_OPTION);
             if(choice==JOptionPane.YES_OPTION){
+                searchStockIn(stockInID).getSR().setOutstanding(searchStockIn(stockInID).getSR().getOutstanding()+searchStockIn(stockInID).getQty());//reverse the stock in
+                System.out.println(searchStockIn(stockInID).getSR().getOutstanding());
                 stockInList.remove(searchStockIn(stockInID));
                 StockIn.getSIIDSet().remove(stockInID);
                 JOptionPane.showMessageDialog(null, "Record deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                 writeToFile();
+                srrw.writeToFile();
             }
         }
         catch(Exception e){

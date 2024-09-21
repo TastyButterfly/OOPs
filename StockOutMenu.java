@@ -182,7 +182,7 @@ public class StockOutMenu {
                     return so;
                 }
             }
-            JOptionPane.showMessageDialog(null, "StockOut ID not found!", "Warning", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Stock Out ID not found!", "Warning", JOptionPane.WARNING_MESSAGE);
             return null;
         }
         catch(NullPointerException e){
@@ -342,9 +342,19 @@ public class StockOutMenu {
                     if (newStockOutID != null && !newStockOutID.trim().isEmpty() && searchSO(stockOutID).changeSOID(newStockOutID)) {
                         JOptionPane.showMessageDialog(frame, "Stock Out ID updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         writeToFile();
+                        frame.dispose();
                     }
                     else if(newStockOutID==null || newStockOutID.trim().isEmpty()){
                         JOptionPane.showMessageDialog(frame, "Record not updated. User entered no input or cancelled.", "Operation stopped.", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else if(newStockOutID.equals(stockOutID)){
+                        JOptionPane.showMessageDialog(frame, "Record not updated. New Stock Out ID is the same as the old one.", "Operation stopped.", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else if(StockOut.getSOIDSet().contains(newStockOutID)){
+                        JOptionPane.showMessageDialog(frame, "Record not updated. New Stock Out ID already exists.", "Operation stopped.", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(frame, "An unexpected error occurred.", "Operation stopped.", JOptionPane.INFORMATION_MESSAGE);
                     }
                 }
             });
@@ -393,11 +403,11 @@ public class StockOutMenu {
     }
     public void displayStockOut(){
         try{
-            String stockOutID=JOptionPane.showInputDialog("Enter StockOut ID: ");
+            String stockOutID=JOptionPane.showInputDialog("Enter Stock Out ID: ");
             if(searchSO(stockOutID)==null) return;
             StockOut StockOut = searchSO(stockOutID);
             String[][] data = {
-                {"StockOut ID:", StockOut.getSOID()},
+                {"Stock Out ID:", StockOut.getSOID()},
                 {"Product ID:", StockOut.getProduct().getProdID()},
                 {"Quantity:", String.valueOf(StockOut.getQty())},
                 {"Size:", StockOut.getSize()},
@@ -435,14 +445,16 @@ public class StockOutMenu {
     }
     public void deleteStockOut(){
         try{
-            String stockOutID=JOptionPane.showInputDialog("Enter StockOut ID: ");
+            String stockOutID=JOptionPane.showInputDialog("Enter Stock Out ID: ");
             if(searchSO(stockOutID)==null) return;
             int choice=JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?", "Warning", JOptionPane.YES_NO_OPTION);
             if(choice==JOptionPane.YES_OPTION){
+                searchSO(stockOutID).getStaffProduct().updateProductQuantities(searchSO(stockOutID).getSize(),-searchSO(stockOutID).getQty());
                 stockOut.remove(searchSO(stockOutID));
                 StockOut.getSOIDSet().remove(stockOutID);
                 JOptionPane.showMessageDialog(null, "Record deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                 writeToFile();
+                writeToStaffProd();
             }
         }
         catch(Exception e){

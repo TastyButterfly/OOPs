@@ -92,33 +92,39 @@ public class Cancellation extends Stock{
         }
     }
     //USE WITH CAUTION!!!! COULD BREAK SYSTEM
-    public void setOrder(Order order){
+    public boolean setOrder(Order order){
         try{
             int index;
             for(index=0;index<order.getProdList().size();index++){
                 if(order.getProdList().get(index).getProdID().equals(product.getProdID())) break;
                 else if(index==order.getProdList().size()-1){
                     JOptionPane.showMessageDialog(null, "Product does not match Order.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);
-                    return;
+                    return false;
                 }
             }
             if(product==null){
                 JOptionPane.showMessageDialog(null, "Product has to be set first.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);
+                return false;
             }
             else if(order.getSizes().get(index).equals(size) && order.getQty().get(index)>=qty){
                 this.order=order;
+                return true;
             }
             else if(!order.getSizes().get(index).equals(size)){
                 JOptionPane.showMessageDialog(null, "Size does not match Order.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);
+                return false;
             }
             else if(order.getQty().get(index)<qty){
                 JOptionPane.showMessageDialog(null, "Cancelled quantity exceeds order!.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);
+                return false;
             }
             else{
                 JOptionPane.showMessageDialog(null, "Unexpected error occured.\nChanges not made.", "Warning", JOptionPane.WARNING_MESSAGE);
+                return false;
             }
         }catch (Exception e){
             JOptionPane.showMessageDialog(null, "Error referencing Order object", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
         }
     }
     public boolean setQty(String status, int qty){
